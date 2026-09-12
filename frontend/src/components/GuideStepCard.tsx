@@ -1,68 +1,38 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Svg, { Path, Polyline } from 'react-native-svg';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { MapPane } from './MapPane';
-import { MovementIcon } from './MovementIcon';
 import { PrimaryButton } from './PrimaryButton';
 import { colors, radius, spacing } from '../theme/tokens';
-import { formatDistance, MOVEMENT_LABELS } from '../utils/format';
+import { MOVEMENT_LABELS } from '../utils/format';
 import type { GuideStep } from '../utils/routeSteps';
 
 export interface GuideStepCardProps {
   step: GuideStep;
   index: number;
+  total: number;
+  floorLabel: string;
   isLast: boolean;
-  onDone: () => void;
+  /** Omit to render this read-only — used when reviewing an already-done step. */
+  onDone?: () => void;
 }
 
-// The one step the traveller is on right now: the only expanded card in the
-// checklist (docs/UI_GUIDE.md "04 · Guide").
-export function GuideStepCard({ step, index, isLast, onDone }: GuideStepCardProps) {
-  const headline =
+// The expanded view of one step: the current step while it's in progress, or
+// a past step the traveller tapped to look at again (docs/UI_GUIDE.md
+// "04 · Guide"). The map now shows by default and collapses behind a toggle
+// — text is still the primary way to navigate, but the map should be a
+// glance away, not a tap away (docs/PRD.md, the map as secondary aid).
+export function GuideStepCard({ step, index, total, floorLabel, isLast, onDone }: GuideStepCardProps) {
+  const [showMap, setShowMap] = useState(true);
+
+  const eyebrow =
     step.kind === 'move'
-      ? `${MOVEMENT_LABELS[step.movementType]} · ${formatDistance(step.distanceMeters)}`
-      : 'Switch map';
+      ? `STEP ${index + 1} OF ${total} · ${floorLabel} · ${MOVEMENT_LABELS[step.movementType].toUpperCase()}`
+      : `STEP ${index + 1} OF ${total} · MAP CHANGE`;
 
   return (
     <View style={styles.card}>
-      <View style={styles.headRow}>
-        <View style={styles.iconTile}>
-          {step.kind === 'move' ? (
-            <MovementIcon movementType={step.movementType} size={26} color={colors.white} />
-          ) : (
-            <Svg width={26} height={26} viewBox="0 0 24 24">
-              <Polyline
-                points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"
-                stroke={colors.white}
-                strokeWidth={1.9}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              <Path
-                d="M 8 2 L 8 18"
-                stroke={colors.white}
-                strokeWidth={1.9}
-                strokeLinecap="round"
-                fill="none"
-              />
-              <Path
-                d="M 16 6 L 16 22"
-                stroke={colors.white}
-                strokeWidth={1.9}
-                strokeLinecap="round"
-                fill="none"
-              />
-            </Svg>
-          )}
-        </View>
-        <View style={styles.headText}>
-          <Text style={styles.stepLabel}>STEP {index + 1} — NOW</Text>
-          <Text style={styles.headline}>{headline}</Text>
-        </View>
-      </View>
-
+      <Text style={styles.eyebrow}>{eyebrow}</Text>
       <Text style={styles.instruction}>{step.instruction}</Text>
 
       {step.kind === 'move' ? (
@@ -73,13 +43,25 @@ export function GuideStepCard({ step, index, isLast, onDone }: GuideStepCardProp
               <Text style={styles.calloutBody}>{step.arrivalDescription}</Text>
             </View>
           )}
-          <MapPane
-            geometry={step.geometry}
-            segmentGeometry={step.segmentGeometry}
-            mapAspect={step.mapAspect}
-            assetKey={step.assetKey}
-            floorLabel={step.floorLabel}
-          />
+
+          {showMap && (
+            <MapPane
+              geometry={step.geometry}
+              segmentGeometry={step.segmentGeometry}
+              mapAspect={step.mapAspect}
+              assetKey={step.assetKey}
+              floorLabel={step.floorLabel}
+            />
+          )}
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showMap ? 'Hide map for this step' : 'Show map for this step'}
+            onPress={() => setShowMap((v) => !v)}
+            hitSlop={8}
+          >
+            <Text style={styles.mapToggle}>{showMap ? 'Hide map for this step' : 'Show map for this step'}</Text>
+          </Pressable>
         </>
       ) : (
         <View style={styles.callout}>
@@ -88,53 +70,31 @@ export function GuideStepCard({ step, index, isLast, onDone }: GuideStepCardProp
         </View>
       )}
 
-      <PrimaryButton label={isLast ? "I've arrived" : "Done — I'm here"} onPress={onDone} />
+      {onDone && <PrimaryButton label={isLast ? "I've arrived" : "Done — I'm here"} onPress={onDone} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    gap: 14,
-    padding: 18,
-    borderRadius: radius.xxl,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    backgroundColor: colors.background,
+    // The confirmed design shows the active step as plain content, not a
+    // bordered card — the checklist rows above/below still carry their own
+    // treatment (docs/UI_GUIDE.md "04 · Guide").
+    gap: 18,
+    paddingVertical: spacing.lg,
   },
-  headRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-  },
-  iconTile: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.xl,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headText: {
-    flexShrink: 1,
-    gap: 2,
-  },
-  stepLabel: {
+  eyebrow: {
     fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
     color: colors.primary,
   },
-  headline: {
-    fontSize: 24,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    color: colors.labelStrong,
-  },
   instruction: {
-    fontSize: 16,
-    lineHeight: 23,
-    color: colors.labelNeutral,
+    fontSize: 30,
+    fontWeight: '700',
+    lineHeight: 35,
+    letterSpacing: -0.6,
+    color: colors.labelStrong,
   },
   callout: {
     gap: 4,
@@ -153,7 +113,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: colors.labelNeutral,
   },
-  spacer: {
-    height: spacing.xs,
+  mapToggle: {
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.labelAlternative,
+    textDecorationLine: 'underline',
+    paddingVertical: spacing.xs,
   },
 });

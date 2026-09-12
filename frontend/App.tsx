@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { applyWebInputTheme } from './src/utils/webInputTheme';
 
 // Web-only preview chrome: constrains the app to a phone-sized viewport
 // (matches the 390x844 reference used in the design handoff) instead of
@@ -9,6 +10,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 // RootNavigator directly and never see this wrapper.
 export default function App() {
   if (Platform.OS === 'web') {
+    applyWebInputTheme();
     return (
       <View style={styles.webBackdrop}>
         <View style={styles.webPhoneFrame}>

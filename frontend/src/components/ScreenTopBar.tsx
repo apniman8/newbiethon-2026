@@ -1,17 +1,21 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { StepDots } from './StepDots';
 import { colors, spacing } from '../theme/tokens';
 
 export interface ScreenTopBarProps {
-  title: string;
+  title?: string;
   onBack?: () => void;
+  /** Small progress dots, centered — the input-flow header pattern from the
+   * confirmed design (Guide Screen UX Review.dc.html, id="3"). */
+  dots?: { total: number; current: number };
 }
 
-export function ScreenTopBar({ title, onBack }: ScreenTopBarProps) {
+export function ScreenTopBar({ title, onBack, dots }: ScreenTopBarProps) {
   return (
     <View style={styles.topBar}>
-      {onBack && (
+      {onBack ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -20,8 +24,16 @@ export function ScreenTopBar({ title, onBack }: ScreenTopBarProps) {
         >
           <Text style={styles.backGlyph}>‹</Text>
         </Pressable>
+      ) : (
+        dots && <View style={styles.backButton} />
       )}
-      <Text style={styles.title}>{title}</Text>
+      {dots && (
+        <View style={styles.center}>
+          <StepDots total={dots.total} current={dots.current} />
+        </View>
+      )}
+      {title && <Text style={styles.title}>{title}</Text>}
+      {dots && <View style={styles.backButton} />}
     </View>
   );
 }
@@ -46,6 +58,10 @@ const styles = StyleSheet.create({
   backGlyph: {
     fontSize: 18,
     color: colors.labelNeutral,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
   },
   title: {
     fontSize: 17,

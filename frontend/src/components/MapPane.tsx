@@ -27,7 +27,11 @@ export interface MapPaneProps {
   height?: number;
 }
 
-const PAD = 0.08; // share of the bounding box kept as breathing room
+// Share of the bounding box kept as breathing room, plus a fixed floor. Wide
+// enough that the panel reads as "here's the map, zoomed toward this step"
+// rather than a tight, seemingly-cropped snippet of the artwork.
+const PAD = 0.35;
+const PAD_FLOOR = 0.12;
 
 function toPath(points: ImagePoint[], aspect: number): string {
   return points
@@ -49,8 +53,8 @@ function viewBox(all: ImagePoint[][], aspect: number): string {
   // A straight segment has zero extent on one axis; keep a floor so it still frames.
   const w = Math.max(maxX - minX, 0.12);
   const h = Math.max(maxY - minY, 0.12);
-  const padX = w * PAD + 0.04;
-  const padY = h * PAD + 0.04;
+  const padX = w * PAD + PAD_FLOOR;
+  const padY = h * PAD + PAD_FLOOR;
 
   return `${minX - padX} ${minY - padY} ${w + padX * 2} ${h + padY * 2}`;
 }
@@ -61,7 +65,7 @@ export function MapPane({
   mapAspect,
   assetKey,
   floorLabel,
-  height = 140,
+  height = 220,
 }: MapPaneProps) {
   const reducedMotion = useReducedMotion();
   const dashOffset = useRef(new Animated.Value(0)).current;
@@ -109,7 +113,7 @@ export function MapPane({
               d={toPath(path, mapAspect)}
               fill="none"
               stroke={colors.lineNormalNormal}
-              strokeWidth={unit * 9}
+              strokeWidth={unit * 5}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -118,7 +122,7 @@ export function MapPane({
             d={toPath(geometry, mapAspect)}
             fill="none"
             stroke={colors.white}
-            strokeWidth={unit * 11}
+            strokeWidth={unit * 7}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -127,20 +131,20 @@ export function MapPane({
               d={toPath(geometry, mapAspect)}
               fill="none"
               stroke={colors.primary}
-              strokeWidth={unit * 6}
+              strokeWidth={unit * 4}
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray={`${unit * 14} ${unit * 11}`}
+              strokeDasharray={`${unit * 9} ${unit * 7}`}
             />
           ) : (
             <AnimatedPath
               d={toPath(geometry, mapAspect)}
               fill="none"
               stroke={colors.primary}
-              strokeWidth={unit * 6}
+              strokeWidth={unit * 4}
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray={`${unit * 14} ${unit * 11}`}
+              strokeDasharray={`${unit * 9} ${unit * 7}`}
               strokeDashoffset={dashOffset}
             />
           )}
@@ -148,20 +152,20 @@ export function MapPane({
             <Circle
               cx={start.x * mapAspect}
               cy={start.y}
-              r={unit * 5}
+              r={unit * 3.5}
               fill={colors.white}
               stroke={colors.primary}
-              strokeWidth={unit * 3}
+              strokeWidth={unit * 2}
             />
           )}
           {here && (
             <Circle
               cx={here.x * mapAspect}
               cy={here.y}
-              r={unit * 8}
+              r={unit * 5.5}
               fill={colors.primary}
               stroke={colors.white}
-              strokeWidth={unit * 4}
+              strokeWidth={unit * 2.5}
             />
           )}
         </G>

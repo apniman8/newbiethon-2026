@@ -14,6 +14,7 @@ export const colors = {
   fillAlternative: '#F2F4F7',
   fillNormal: 'rgba(112,115,124,0.08)',
   lineNormalNormal: '#E8EBF0',
+  lineLight: '#D7DBE2',
 
   background: '#FFFFFF',
   inverseBackground: '#1B1C1E',
@@ -53,6 +54,10 @@ export const fontFamily = {
 
 export const typography = {
   screenTitle: { fontSize: 28, fontWeight: '700' as const, lineHeight: 35 },
+  // The confirmed handoff (Guide Screen UX Review.dc.html, id="3") leads every
+  // screen with one oversized, landmark-first line of text.
+  heroTitle: { fontSize: 34, fontWeight: '700' as const, lineHeight: 39, letterSpacing: -0.6 },
+  eyebrow: { fontSize: 12, fontWeight: '700' as const, letterSpacing: 0.5 },
   sectionLabel: { fontSize: 13, fontWeight: '600' as const, letterSpacing: 0.4 },
   body: { fontSize: 15, fontWeight: '600' as const },
   bodySecondary: { fontSize: 13, fontWeight: '400' as const },

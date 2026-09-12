@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import type { KeyboardTypeOptions, ReturnKeyTypeOptions } from 'react-native';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
-import { colors, radius, spacing } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export interface TextFieldProps {
-  label: string;
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
@@ -15,8 +14,10 @@ export interface TextFieldProps {
   onSubmitEditing?: () => void;
 }
 
+// docs/ADR.md ADR-012: origin and destination are free text, styled as the
+// single underlined line the confirmed design uses instead of a boxed field
+// (Guide Screen UX Review.dc.html, id="3").
 export function TextField({
-  label,
   value,
   onChangeText,
   placeholder,
@@ -28,52 +29,35 @@ export function TextField({
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.labelAlternative}
-        keyboardType={keyboardType}
-        returnKeyType={returnKeyType}
-        autoFocus={autoFocus}
-        onSubmitEditing={onSubmitEditing}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={[styles.input, focused && styles.inputFocused]}
-        // Free typing and pasting both land here — TextInput supports paste
-        // out of the box, no extra wiring needed.
-        autoCorrect={false}
-      />
-    </View>
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor={colors.labelAlternative}
+      keyboardType={keyboardType}
+      returnKeyType={returnKeyType}
+      autoFocus={autoFocus}
+      onSubmitEditing={onSubmitEditing}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={[styles.input, (focused || value.length > 0) && styles.inputActive]}
+      // Free typing and pasting both land here — TextInput supports paste
+      // out of the box, no extra wiring needed.
+      autoCorrect={false}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: spacing.sm,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    color: colors.labelAlternative,
-    textTransform: 'uppercase',
-  },
   input: {
-    height: 52,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.lineNormalNormal,
-    paddingHorizontal: spacing.lg,
-    fontSize: 16,
+    height: 56,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.lineNormalNormal,
+    fontSize: 20,
     fontWeight: '500',
     color: colors.labelStrong,
-    backgroundColor: colors.background,
   },
-  inputFocused: {
-    borderColor: colors.primary,
-    borderWidth: 2,
+  inputActive: {
+    borderBottomColor: colors.primary,
   },
 });
