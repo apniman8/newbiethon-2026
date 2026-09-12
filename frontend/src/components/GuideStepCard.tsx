@@ -77,6 +77,7 @@ export function GuideStepCard({ step, index, isLast, onDone }: GuideStepCardProp
             geometry={step.geometry}
             segmentGeometry={step.segmentGeometry}
             mapAspect={step.mapAspect}
+            assetKey={step.assetKey}
             floorLabel={step.floorLabel}
           />
         </>

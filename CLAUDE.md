@@ -15,7 +15,7 @@
 ## 아키텍처 규칙
 - CRITICAL: 화면 컴포넌트(`src/screens/`)는 데이터를 직접 fetch하지 않는다. 항상 `src/data/routeService.ts`를 통해서만 places/route 데이터를 가져온다 — fixture와 실제 API를 교체 가능하게 유지하기 위함.
 - CRITICAL: 프론트는 `contracts/v1.2`를 따른다. enum 값(`route-enums-v1.2.md`)을 임의로 확장하거나 변형하지 않으며, `WHEELCHAIR` 프로필은 어떤 화면에도 노출하지 않는다.
-- CRITICAL: 경로 좌표는 API가 주는 정규화 값(`imageX`/`imageY`, `geometry`)만 쓴다. 프론트에 좌표 테이블을 다시 만들지 않는다(`docs/ADR.md` ADR-014). 역 안내도 이미지가 없는 동안에도 지도처럼 보이는 가짜 배경을 그리지 않는다.
+- CRITICAL: 경로 좌표는 API가 주는 정규화 값(`imageX`/`imageY`, `geometry`)만 쓴다. 프론트에 좌표 테이블을 다시 만들지 않는다(`docs/ADR.md` ADR-014). 지도 이미지는 `src/assets/mapImages.ts` 레지스트리로만 붙이고, 없는 지도를 지도처럼 보이는 가짜 배경으로 대체하지 않는다.
 - CRITICAL: 색상 hex를 컴포넌트에 직접 하드코딩하지 않는다. `src/theme/tokens.ts`의 상수를 참조한다.
 - CRITICAL: `routeService.ts`는 일반 `Error`가 아니라 `src/data/errors.ts`의 `RouteServiceError`(`kind: 'NETWORK'|'NOT_FOUND'|'INVALID_REQUEST'|'SERVER_ERROR'`)만 던진다. 화면은 이 `kind`를 분기해 `ErrorState`로 보여준다 — "네트워크 끊김"과 "경로 없음"과 "서버 오류"를 같은 문구로 뭉뚱그리지 않는다(`docs/ADR.md` ADR-007, `docs/PRD.md` "데이터 로딩 실패").
 - CRITICAL: 세그먼트를 펼친 체크리스트 항목이 0개인 응답은 유효하다. 이 배열을 가드 없이 인덱싱해 크래시를 유발하지 않는다 — `GuideScreen`이 마운트 시 확인하고 즉시 `Arrived`로 리다이렉트한다(`docs/ADR.md` ADR-009). 조건부 리다이렉트는 반드시 모든 훅 호출 뒤에 두어 Rules of Hooks를 지킨다(`docs/ARCHITECTURE.md` "훅 순서").

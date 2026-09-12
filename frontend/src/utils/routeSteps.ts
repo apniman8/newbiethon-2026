@@ -3,6 +3,7 @@
 // segments are flattened into a single ordered list: one item per edge, plus one
 // item for each map handover (docs/ADR.md ADR-015).
 
+import { getMapAsset } from '../assets/mapImages';
 import type {
   ImagePoint,
   MovementType,
@@ -23,6 +24,8 @@ export interface MoveStep {
   segmentGeometry: ImagePoint[][];
   /** Map image width/height, so normalized points can be drawn without distortion. */
   mapAspect: number;
+  /** Which bundled station map to draw behind the route, if we have it. */
+  assetKey: string;
   /** What the traveller should see when they arrive at the far end. */
   arrivalDescription: string;
 }
@@ -60,8 +63,15 @@ export function toGuideSteps(route: RouteResponse): GuideStep[] {
     const segmentGeometry = segment.edges.map((e) => e.geometry);
     const nodeById = new Map(segment.nodes.map((n) => [n.id, n]));
     const image = route.mapImages.find((m) => m.id === segment.mapImageId);
-    const mapAspect =
-      image && image.intrinsicHeight > 0 ? image.intrinsicWidth / image.intrinsicHeight : 1;
+    const assetKey = image?.assetKey ?? '';
+    // The bundled file's real dimensions win over the contract's declared ones:
+    // drawing the artwork at a wrong aspect ratio visibly distorts it.
+    const asset = getMapAsset(assetKey);
+    const mapAspect = asset
+      ? asset.width / asset.height
+      : image && image.intrinsicHeight > 0
+        ? image.intrinsicWidth / image.intrinsicHeight
+        : 1;
 
     for (const edge of segment.edges) {
       const toNode = nodeById.get(edge.toNodeId);
@@ -75,6 +85,7 @@ export function toGuideSteps(route: RouteResponse): GuideStep[] {
         geometry: edge.geometry,
         segmentGeometry,
         mapAspect,
+        assetKey,
         arrivalDescription: toNode?.description ?? '',
       });
     }

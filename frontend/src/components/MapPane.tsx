@@ -1,16 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, G, Path } from 'react-native-svg';
+import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
 
 import { colors, radius } from '../theme/tokens';
+import { getMapAsset } from '../assets/mapImages';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { ImagePoint } from '../types/contracts';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 // v1.2 hands us normalized 0..1 coordinates per map image (docs/ADR.md ADR-014).
-// The station map images themselves are not in the repo yet, so the route is
-// drawn on a neutral panel — the geometry is real, the backdrop is not a map.
+// Those coordinates span the whole image, so in this SVG's units the map covers
+// exactly x 0..mapAspect, y 0..1 — placing it there makes the artwork and the
+// route share one space, and the viewBox zoom applies to both. A map we don't
+// have bundled simply leaves the panel empty behind the route.
 export interface MapPaneProps {
   /** The current step's own path. */
   geometry: ImagePoint[];
@@ -18,6 +21,8 @@ export interface MapPaneProps {
   segmentGeometry: ImagePoint[][];
   /** Map image width/height, so the shape is not stretched. */
   mapAspect: number;
+  /** Contract assetKey for the station map to draw behind the route. */
+  assetKey?: string;
   floorLabel: string;
   height?: number;
 }
@@ -54,6 +59,7 @@ export function MapPane({
   geometry,
   segmentGeometry,
   mapAspect,
+  assetKey,
   floorLabel,
   height = 140,
 }: MapPaneProps) {
@@ -74,6 +80,7 @@ export function MapPane({
     return () => loop.stop();
   }, [reducedMotion, dashOffset]);
 
+  const asset = getMapAsset(assetKey);
   const here = geometry[geometry.length - 1];
   const start = geometry[0];
   const box = viewBox(segmentGeometry.length > 0 ? segmentGeometry : [geometry], mapAspect);
@@ -84,6 +91,16 @@ export function MapPane({
     <View style={[styles.panel, { height }]}>
       <Svg width="100%" height="100%" viewBox={box} preserveAspectRatio="xMidYMid meet">
         <G>
+          {asset && (
+            <SvgImage
+              href={asset.source}
+              x={0}
+              y={0}
+              width={mapAspect}
+              height={1}
+              preserveAspectRatio="none"
+            />
+          )}
           {segmentGeometry.map((path, i) => (
             <Path
               key={i}

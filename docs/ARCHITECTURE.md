@@ -63,7 +63,7 @@ LoadingScreen 마운트
 - 좌표는 전부 API가 내려준다: 노드는 `imageX`/`imageY`, 엣지는 `geometry[]`, 둘 다 **해당 지도 이미지 기준 0~1 정규화 값**이다(`docs/ADR.md` ADR-014). 프론트에는 좌표 테이블이 없다.
 - `MapPane`은 현재 항목의 `geometry`를 굵게, 같은 세그먼트의 나머지 엣지를 흐리게 그린다. `viewBox`는 세그먼트 전체의 바운딩 박스에 여백을 더해 계산하므로 항목이 바뀌면 자연스럽게 그 구간으로 확대된다 — 별도 카메라 로직이 필요 없다.
 - 정규화 좌표를 그대로 쓰면 지도 이미지의 가로세로비가 무시되어 형태가 찌그러진다. `mapImages[].intrinsicWidth/Height`에서 구한 `mapAspect`를 x에 곱해 원래 비율로 되돌린 뒤 그린다.
-- **역 안내도 이미지는 아직 저장소에 없다**(`mapImages[].assetKey`에 대응하는 파일 없음). 그래서 지금은 배경 없이 경로 형태만 그린다. 이미지가 들어오면 같은 정규화 좌표계 위에 `<Image>`를 깔기만 하면 된다.
+- 지도 이미지는 `src/assets/mapImages.ts`가 `assetKey`로 매핑한다. 등록된 지도는 SVG 좌표계 `x 0..mapAspect, y 0..1`에 배경으로 깔리고, 없는 지도(`seoul-arex-exploded`)는 배경 없이 경로만 그린다. 가로세로비는 계약 선언값이 아니라 **번들 파일의 실제 크기**에서 계산한다(`docs/ADR.md` ADR-016).
 
 ## 타입
 - `src/types/`는 `contracts/v1.2/route-contract-v1.2.json`, `places-contract-v1.2.json`, `route-enums-v1.2.md`를 그대로 TS로 옮긴 것이다. 계약이 바뀌면 이 폴더만 갱신한다.
