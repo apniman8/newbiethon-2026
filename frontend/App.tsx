@@ -9,9 +9,10 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 // RootNavigator directly and never see this wrapper.
 export default function App() {
   if (Platform.OS === 'web') {
+    const isNodeEditor = typeof window !== 'undefined' && window.location.pathname.startsWith('/node-editor');
     return (
       <View style={styles.webBackdrop}>
-        <View style={styles.webPhoneFrame}>
+        <View style={isNodeEditor ? styles.webEditorFrame : styles.webPhoneFrame}>
           <RootNavigator />
         </View>
         <StatusBar style="auto" />
@@ -42,5 +43,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
     boxShadow: '0 24px 60px rgba(16,18,22,.18), 0 0 0 10px #15171c',
+  },
+  webEditorFrame: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#FFFFFF',
   },
 });

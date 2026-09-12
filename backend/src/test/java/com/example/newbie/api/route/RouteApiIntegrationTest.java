@@ -40,6 +40,15 @@ class RouteApiIntegrationTest {
     }
 
     @Test
+    void mapEndpointReturnsNodesForTheEditor() {
+        ResponseEntity<Map> response = restTemplate.getForEntity("/api/v1/maps/" + MAP_ID, Map.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<?>) response.getBody().get("nodes")).isNotEmpty();
+        assertThat((List<?>) response.getBody().get("edges")).isNotEmpty();
+    }
+
+    @Test
     void placesEndpointAllowsAnExpoWebOriginByDefault() {
         HttpHeaders headers = new HttpHeaders();
         headers.setOrigin("https://example-expo-web.app");

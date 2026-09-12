@@ -11,6 +11,7 @@ public enum ErrorCode {
     MAP_NOT_FOUND(HttpStatus.NOT_FOUND, "MAP_NOT_FOUND", "The requested station map was not found."),
     ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTE_NOT_FOUND", "No accessible route is available for the selected profile."),
     GRAPH_DATA_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "GRAPH_DATA_INVALID", "The station map data is invalid."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Missing or invalid admin key."),
     API_NOT_FOUND(HttpStatus.NOT_FOUND, "API_NOT_FOUND", "The requested API endpoint was not found."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "An unexpected server error occurred.");
 

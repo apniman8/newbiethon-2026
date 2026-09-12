@@ -18,12 +18,16 @@ public class MapService {
     }
 
     public PlacesResponse getPlaces(String mapId) {
-        StationMap map = graphRepository.findById(mapId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MAP_NOT_FOUND));
+        StationMap map = getMap(mapId);
 
         return new PlacesResponse(
                 map.mapId(),
                 map.places().stream().map(PlaceResponse::from).toList()
         );
+    }
+
+    public StationMap getMap(String mapId) {
+        return graphRepository.findById(mapId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MAP_NOT_FOUND));
     }
 }

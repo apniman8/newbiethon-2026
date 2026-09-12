@@ -1,6 +1,7 @@
 import type { RoutingProfile, RouteResponse } from '../types/contracts';
 
 export type RootStackParamList = {
+  NodeEditor: undefined;
   OriginInput: undefined;
   DestinationInput: { originPlaceId: string; originDisplayName: string };
   Loading: {

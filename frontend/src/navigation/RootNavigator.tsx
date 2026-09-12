@@ -7,6 +7,7 @@ import { DestinationInputScreen } from '../screens/DestinationInputScreen';
 import { LoadingScreen } from '../screens/LoadingScreen';
 import { OriginInputScreen } from '../screens/OriginInputScreen';
 import { GuideScreen } from '../screens/GuideScreen';
+import { NodeEditorScreen } from '../screens/NodeEditorScreen';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -16,8 +17,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 // docs/PRD.md "핵심 기능" / docs/ARCHITECTURE.md 디렉토리 구조.
 export function RootNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer
+      linking={{
+        prefixes: [],
+        config: { screens: { NodeEditor: 'node-editor' } },
+      }}
+    >
+      <Stack.Navigator initialRouteName="OriginInput" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="NodeEditor" component={NodeEditorScreen} />
         <Stack.Screen name="OriginInput" component={OriginInputScreen} />
         <Stack.Screen name="DestinationInput" component={DestinationInputScreen} />
         <Stack.Screen name="Loading" component={LoadingScreen} />

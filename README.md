@@ -53,3 +53,12 @@ The public demo API accepts browser requests from any origin by default so that
 Expo web previews, deployed frontends, and LAN development URLs all work. To
 restrict this in production, set `CORS_ALLOWED_ORIGINS` to a comma-separated
 list of allowed origins without trailing slashes.
+
+## Node editor
+
+The Expo web build exposes `/node-editor` as a visual graph inspection tool.
+It loads the complete station graph from `GET /api/v1/maps/{mapId}`, overlays
+nodes and edges on the bundled station maps, and shows node metadata on click.
+Dragging a node updates its normalized coordinates immediately and stores the
+draft in browser local storage. **Copy patch** exports changed nodes plus the
+adjusted endpoints of connected edge geometries for applying to `map-v1.json`.

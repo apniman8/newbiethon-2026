@@ -156,5 +156,6 @@ export type BackendErrorCode =
   | 'MAP_NOT_FOUND'
   | 'ROUTE_NOT_FOUND'
   | 'GRAPH_DATA_INVALID'
+  | 'UNAUTHORIZED'
   | 'API_NOT_FOUND'
   | 'INTERNAL_SERVER_ERROR';

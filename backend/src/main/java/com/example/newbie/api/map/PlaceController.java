@@ -2,6 +2,7 @@ package com.example.newbie.api.map;
 
 import com.example.newbie.api.map.dto.PlacesResponse;
 import com.example.newbie.application.map.MapService;
+import com.example.newbie.domain.indoor.model.StationMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,5 +19,10 @@ public class PlaceController {
     @GetMapping("/api/v1/maps/{mapId}/places")
     public PlacesResponse getPlaces(@PathVariable String mapId) {
         return mapService.getPlaces(mapId);
+    }
+
+    @GetMapping("/api/v1/maps/{mapId}")
+    public StationMap getMap(@PathVariable String mapId) {
+        return mapService.getMap(mapId);
     }
 }
