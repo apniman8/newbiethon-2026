@@ -1,0 +1,85 @@
+{
+  "apiVersion": "v1.1",
+  "routeId": "route-demo-luggage-001",
+  "mapId": "SEOUL_STATION_KTX_TO_AREX",
+  "profile": "LUGGAGE",
+  "start": {
+    "placeId": "SEOUL_KTX_ARRIVAL",
+    "nodeId": "SEOUL-1F-N001",
+    "displayName": "Seoul Station KTX Arrival Hall",
+    "floor": "1F"
+  },
+  "destination": {
+    "placeId": "SEOUL_AREX_PLATFORM",
+    "nodeId": "SEOUL-B7-N012",
+    "displayName": "AREX Platform",
+    "floor": "B7"
+  },
+  "summary": {
+    "totalDistanceMeters": 248,
+    "estimatedDurationSeconds": 390,
+    "stepCount": 3,
+    "usesStairs": false,
+    "elevatorCount": 1
+  },
+  "facilityDataStatus": "STATIC",
+  "steps": [
+    {
+      "sequence": 1,
+      "fromNodeId": "SEOUL-1F-N001",
+      "toNodeId": "SEOUL-1F-N002",
+      "fromFloor": "1F",
+      "toFloor": "1F",
+      "nodeType": "INTERSECTION",
+      "movementType": "WALK",
+      "direction": "STRAIGHT",
+      "distanceMeters": 35,
+      "instruction": "Go straight for 35 meters toward the blue AREX signs.",
+      "landmark": {
+        "id": "LM-AREX-OVERHEAD-SIGN-01",
+        "type": "SIGN",
+        "name": "AREX overhead sign",
+        "description": "Look for the blue Airport Railroad sign above the corridor.",
+        "position": "OVERHEAD"
+      }
+    },
+    {
+      "sequence": 2,
+      "fromNodeId": "SEOUL-1F-N002",
+      "toNodeId": "SEOUL-1F-N005",
+      "fromFloor": "1F",
+      "toFloor": "1F",
+      "nodeType": "ELEVATOR_ENTRANCE",
+      "movementType": "WALK",
+      "direction": "LEFT",
+      "distanceMeters": 18,
+      "instruction": "Turn left and walk 18 meters to Elevator A.",
+      "landmark": {
+        "id": "LM-ELEVATOR-A-01",
+        "type": "ELEVATOR",
+        "name": "Elevator A",
+        "description": "A silver elevator next to the information desk.",
+        "position": "AHEAD"
+      }
+    },
+    {
+      "sequence": 3,
+      "fromNodeId": "SEOUL-1F-N005",
+      "toNodeId": "SEOUL-B7-N012",
+      "fromFloor": "1F",
+      "toFloor": "B7",
+      "nodeType": "DESTINATION",
+      "movementType": "ELEVATOR",
+      "direction": "DOWN",
+      "distanceMeters": 0,
+      "instruction": "Take Elevator A down to B7 and follow the signs to the AREX platform.",
+      "landmark": {
+        "id": "LM-AREX-PLATFORM-01",
+        "type": "SIGN",
+        "name": "AREX platform sign",
+        "description": "The platform entrance is marked with a blue Airport Railroad sign.",
+        "position": "AHEAD"
+      }
+    }
+  ]
+}
