@@ -6,40 +6,40 @@ import { LuggageToggle } from '../components/LuggageToggle';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { ScreenTopBar } from '../components/ScreenTopBar';
 import { TextField } from '../components/TextField';
-import { ARRIVAL_CONCOURSE_NAME, DEFAULT_ORIGIN_EXIT, KNOWN_STATIONS, ORIGIN_EXITS } from '../data/constants';
+import { FIXED_START_PLACE_ID, MAP_ID } from '../data/constants';
+import { usePlaces } from '../hooks/usePlaces';
 import type { RootStackParamList } from '../navigation/types';
 import { colors, radius, spacing, typography } from '../theme/tokens';
+import { matchPlace, matchPlaces } from '../utils/matchPlace';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OriginInput'>;
 
-// docs/ADR.md ADR-013: whatever the traveller enters here only ever feeds the
-// display label — routing always starts from FIXED_START_PLACE_ID, so there
-// is nothing to validate or match against a place list. This MVP's backend
-// only has one map (Seoul Station), so the station field can't be checked
-// against a real list either — it's free text for the same display-only reason.
+// Searches the same live place list as the destination screen, filtered to
+// selectableAsStart. The backend now accepts more than one start place, so
+// picking a different real one here (e.g. "Line 4 Platform") must actually
+// change what gets routed from — free text that doesn't match anything real
+// still falls back to FIXED_START_PLACE_ID rather than failing outright.
 export function OriginInputScreen({ navigation }: Props) {
   const [stationText, setStationText] = useState('');
-  const [exit, setExit] = useState<(typeof ORIGIN_EXITS)[number]>(DEFAULT_ORIGIN_EXIT);
   const [hasLuggage, setHasLuggage] = useState(false);
+  const { places } = usePlaces(MAP_ID);
 
   const matches = useMemo(() => {
-    const query = stationText.trim().toLowerCase();
-    if (!query) return [];
-    const found = KNOWN_STATIONS.filter((name) => name.toLowerCase().includes(query));
+    const found = matchPlaces(places, stationText, 'start');
     // Hide the list once the field already holds an exact pick.
-    if (found.length === 1 && found[0].toLowerCase() === query) return [];
-    return found.slice(0, 5);
-  }, [stationText]);
-
-  // Picking the arrival concourse by name means the traveller is already
-  // there — there's no exit left to ask about, unlike a plain "Seoul Station".
-  const isArrivalConcourse = stationText.trim().toLowerCase() === ARRIVAL_CONCOURSE_NAME.toLowerCase();
+    if (found.length === 1 && found[0].displayName.toLowerCase() === stationText.trim().toLowerCase()) {
+      return [];
+    }
+    return found;
+  }, [places, stationText]);
 
   const goNext = () => {
-    const station = stationText.trim();
-    if (!station) return;
+    const text = stationText.trim();
+    if (!text) return;
+    const matched = matchPlace(places, text, 'start');
     navigation.navigate('DestinationInput', {
-      originLabel: isArrivalConcourse ? station : `${station} · Exit ${exit}`,
+      originLabel: text,
+      originPlaceId: matched?.id ?? FIXED_START_PLACE_ID,
       profile: hasLuggage ? 'LUGGAGE' : 'STANDARD',
     });
   };
@@ -53,7 +53,7 @@ export function OriginInputScreen({ navigation }: Props) {
             <Text style={styles.eyebrow}>STEP 1 OF 2</Text>
             <Text style={styles.title}>Where are you starting from?</Text>
             <Text style={styles.subtitle}>
-              This app currently only routes from Seoul Station — search for it below and pick your exit.
+              This app currently only covers Seoul Station — search for a starting point on its map below.
             </Text>
           </View>
 
@@ -61,47 +61,26 @@ export function OriginInputScreen({ navigation }: Props) {
             <TextField
               value={stationText}
               onChangeText={setStationText}
-              placeholder="Search for a station"
+              placeholder="Search for a starting point"
               autoFocus
               returnKeyType="next"
             />
             {matches.length > 0 && (
               <View style={styles.matchList}>
-                {matches.map((name) => (
+                {matches.map((place) => (
                   <Pressable
-                    key={name}
+                    key={place.id}
                     accessibilityRole="button"
-                    onPress={() => setStationText(name)}
+                    onPress={() => setStationText(place.displayName)}
                     style={({ pressed }) => [styles.matchRow, pressed && styles.matchRowPressed]}
                   >
-                    <Text style={styles.matchText}>{name}</Text>
+                    <Text style={styles.matchName}>{place.displayName}</Text>
+                    <Text style={styles.matchMeta}>{place.description}</Text>
                   </Pressable>
                 ))}
               </View>
             )}
           </View>
-
-          {!isArrivalConcourse && (
-            <View style={styles.toggleBlock}>
-              <Text style={styles.toggleLabel}>WHICH EXIT ARE YOU NEAREST TO?</Text>
-              <View style={styles.toggleRow}>
-                {ORIGIN_EXITS.map((option) => {
-                  const active = option === exit;
-                  return (
-                    <Pressable
-                      key={option}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: active }}
-                      onPress={() => setExit(option)}
-                      style={[styles.toggle, active && styles.toggleActive]}
-                    >
-                      <Text style={[styles.toggleText, active && styles.toggleTextActive]}>Exit {option}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-          )}
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -146,6 +125,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   matchRow: {
+    gap: 2,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
@@ -153,35 +133,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   matchRowPressed: { backgroundColor: colors.fillAlternative },
-  matchText: { fontSize: 15, fontWeight: '600', color: colors.labelStrong },
-  toggleBlock: { gap: spacing.md },
-  toggleLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.4,
-    color: colors.labelAlternative,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  toggle: {
-    minWidth: 78,
-    height: 48,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.lineNormalNormal,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  toggleActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.calloutBackground,
-  },
-  toggleText: { fontSize: 15, fontWeight: '600', color: colors.labelNeutral },
-  toggleTextActive: { color: colors.primaryStrong },
+  matchName: { fontSize: 15, fontWeight: '700', color: colors.labelStrong },
+  matchMeta: { fontSize: 13, fontWeight: '600', color: colors.labelAlternative },
   footer: {
     paddingHorizontal: spacing.xxl,
     paddingBottom: spacing.xxl,

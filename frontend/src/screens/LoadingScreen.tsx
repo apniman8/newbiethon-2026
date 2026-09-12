@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ErrorState } from '../components/ErrorState';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SecondaryButton } from '../components/SecondaryButton';
-import { FIXED_START_PLACE_ID, MAP_ID } from '../data/constants';
+import { MAP_ID } from '../data/constants';
 import { RouteServiceError, type RouteServiceErrorKind } from '../data/errors';
 import { getPlaces, getRoute } from '../data/routeService';
 import { useSlowLoadHint } from '../hooks/useSlowLoadHint';
@@ -30,7 +30,7 @@ type Status = 'loading' | 'ready' | 'error';
 // confirm with "Start" rather than auto-advancing — they should get a look
 // at the route before the checklist begins.
 export function LoadingScreen({ route: navRoute, navigation }: Props) {
-  const { originLabel, destinationText, profile } = navRoute.params;
+  const { originLabel, originPlaceId, destinationText, profile } = navRoute.params;
   const [status, setStatus] = useState<Status>('loading');
   const [errorKind, setErrorKind] = useState<RouteServiceErrorKind | null>(null);
   const [routeResponse, setRouteResponse] = useState<RouteResponse | null>(null);
@@ -52,7 +52,7 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
         }
         const response = await getRoute({
           mapId: MAP_ID,
-          startPlaceId: FIXED_START_PLACE_ID,
+          startPlaceId: originPlaceId,
           destinationPlaceId: match.id,
           profile,
         });
@@ -69,7 +69,7 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [destinationText, profile, reloadToken]);
+  }, [originPlaceId, destinationText, profile, reloadToken]);
 
   const startGuide = () => {
     if (routeResponse) navigation.replace('Guide', { route: routeResponse, originLabel });

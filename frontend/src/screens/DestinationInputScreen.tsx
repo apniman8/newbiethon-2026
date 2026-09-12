@@ -21,7 +21,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'DestinationInput'>;
 // profile (STANDARD/LUGGAGE) is picked on the origin screen — carried
 // through untouched here.
 export function DestinationInputScreen({ navigation, route }: Props) {
-  const { originLabel, profile } = route.params;
+  const { originLabel, originPlaceId, profile } = route.params;
   const [destinationText, setDestinationText] = useState('');
   const { places } = usePlaces(MAP_ID);
 
@@ -37,7 +37,7 @@ export function DestinationInputScreen({ navigation, route }: Props) {
   const goNext = () => {
     const text = destinationText.trim();
     if (!text) return;
-    navigation.navigate('Loading', { originLabel, destinationText: text, profile });
+    navigation.navigate('Loading', { originLabel, originPlaceId, destinationText: text, profile });
   };
 
   return (
