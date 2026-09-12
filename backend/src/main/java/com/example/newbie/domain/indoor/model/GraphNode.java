@@ -1,23 +1,30 @@
 package com.example.newbie.domain.indoor.model;
 
-import java.util.List;
-import java.util.Objects;
+import com.example.newbie.domain.indoor.exception.GraphDataInvalidException;
 
 public record GraphNode(
         String id,
         NodeType nodeType,
         String floor,
-        Double x,
-        Double y,
+        String mapImageId,
+        double imageX,
+        double imageY,
         String description,
-        List<Landmark> landmarks,
         String facilityId
 ) {
     public GraphNode {
-        Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(nodeType, "nodeType must not be null");
-        Objects.requireNonNull(floor, "floor must not be null");
-        Objects.requireNonNull(description, "description must not be null");
-        landmarks = landmarks == null ? List.of() : List.copyOf(landmarks);
+        id = GraphDataAssertions.requireText(id, "node.id");
+        nodeType = GraphDataAssertions.requireValue(nodeType, "node.nodeType");
+        floor = GraphDataAssertions.requireText(floor, "node.floor");
+        mapImageId = GraphDataAssertions.requireText(mapImageId, "node.mapImageId");
+        description = GraphDataAssertions.requireText(description, "node.description");
+        requireNormalized(imageX, "node.imageX");
+        requireNormalized(imageY, "node.imageY");
+    }
+
+    private static void requireNormalized(double value, String field) {
+        if (!Double.isFinite(value) || value < 0.0 || value > 1.0) {
+            throw new GraphDataInvalidException(field + " must be between 0.0 and 1.0");
+        }
     }
 }

@@ -1,0 +1,45 @@
+{
+  "mapId": "SEOUL_STATION_KTX_TO_AREX",
+  "places": [
+    {
+      "id": "SEOUL_KTX_ARRIVAL",
+      "displayName": "Seoul Station KTX Arrival Concourse",
+      "description": "Start near the KTX ticket gates on 1F.",
+      "placeType": "ARRIVAL",
+      "selectableAsStart": true,
+      "selectableAsDestination": false
+    },
+    {
+      "id": "SEOUL_LINE1_PLATFORM",
+      "displayName": "Line 1 Platform (B2)",
+      "description": "Line 1 boarding platform.",
+      "placeType": "PLATFORM",
+      "selectableAsStart": false,
+      "selectableAsDestination": true
+    },
+    {
+      "id": "SEOUL_LINE4_PLATFORM",
+      "displayName": "Line 4 Platform (B2)",
+      "description": "Line 4 boarding platform.",
+      "placeType": "PLATFORM",
+      "selectableAsStart": false,
+      "selectableAsDestination": true
+    },
+    {
+      "id": "SEOUL_AREX_TRANSFER",
+      "displayName": "Exit 15 (Transfer to Airport Railroad)",
+      "description": "Handoff point to the Airport Railroad map.",
+      "placeType": "EXIT",
+      "selectableAsStart": false,
+      "selectableAsDestination": true
+    },
+    {
+      "id": "SEOUL_AREX_PLATFORM",
+      "displayName": "AREX Platform (B7)",
+      "description": "Airport Railroad boarding platform. This route uses demo map data.",
+      "placeType": "PLATFORM",
+      "selectableAsStart": false,
+      "selectableAsDestination": true
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 package com.example.newbie.common.exception;
 
+import com.example.newbie.domain.indoor.model.RoutingProfile;
+import com.example.newbie.domain.indoor.exception.GraphDataInvalidException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,14 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(GraphDataInvalidException.class)
+    public ResponseEntity<ErrorResponse> handleGraphDataInvalid(
+            GraphDataInvalidException exception
+    ) {
+        log.error("Invalid station graph data: {}", exception.getMessage(), exception);
+        return response(ErrorCode.GRAPH_DATA_INVALID);
+    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception) {
@@ -53,14 +64,44 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(ErrorCode.VALIDATION_ERROR, message));
     }
 
-    @ExceptionHandler({
-            HttpMessageNotReadableException.class,
-            MethodArgumentTypeMismatchException.class
-    })
-    public ResponseEntity<ErrorResponse> handleInvalidRequest(Exception exception) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleUnreadableMessage(
+            HttpMessageNotReadableException exception
+    ) {
+        InvalidFormatException invalidFormat = findCause(exception, InvalidFormatException.class);
+        if (invalidFormat != null && invalidFormat.getTargetType() == RoutingProfile.class) {
+            return response(ErrorCode.INVALID_PROFILE);
+        }
+
+        return response(ErrorCode.INVALID_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+            MethodArgumentTypeMismatchException exception
+    ) {
+        if (exception.getRequiredType() == RoutingProfile.class) {
+            return response(ErrorCode.INVALID_PROFILE);
+        }
+
+        return response(ErrorCode.INVALID_REQUEST);
+    }
+
+    private ResponseEntity<ErrorResponse> response(ErrorCode errorCode) {
         return ResponseEntity
-                .status(ErrorCode.INVALID_REQUEST.getStatus())
-                .body(ErrorResponse.from(ErrorCode.INVALID_REQUEST));
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.from(errorCode));
+    }
+
+    private <T extends Throwable> T findCause(Throwable throwable, Class<T> type) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (type.isInstance(current)) {
+                return type.cast(current);
+            }
+            current = current.getCause();
+        }
+        return null;
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

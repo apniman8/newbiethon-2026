@@ -14,13 +14,13 @@ class StationMapTest {
     void defensivelyCopiesCollections() {
         List<GraphNode> sourceNodes = new ArrayList<>();
         sourceNodes.add(new GraphNode(
-                "N-1", NodeType.INTERSECTION, "1F", null, null,
-                "Main corridor", List.of(), null
+                "N-1", NodeType.INTERSECTION, "1F", "MAP-1", 0.5, 0.5,
+                "Main corridor", null
         ));
 
         StationMap stationMap = new StationMap(
                 "TEST_MAP", "v1", true, FacilityDataStatus.STATIC,
-                Set.of(RoutingProfile.STANDARD), List.of(), sourceNodes, List.of(), List.of()
+                Set.of(RoutingProfile.STANDARD), List.of(), List.of(), sourceNodes, List.of(), List.of()
         );
 
         sourceNodes.clear();

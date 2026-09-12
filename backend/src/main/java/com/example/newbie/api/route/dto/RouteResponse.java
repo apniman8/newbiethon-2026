@@ -1,5 +1,6 @@
 package com.example.newbie.api.route.dto;
 
+import com.example.newbie.api.map.dto.MapImageResponse;
 import com.example.newbie.domain.indoor.model.FacilityDataStatus;
 import com.example.newbie.domain.indoor.model.RoutingProfile;
 import java.util.List;
@@ -13,9 +14,11 @@ public record RouteResponse(
         RoutePlaceResponse destination,
         RouteSummaryResponse summary,
         FacilityDataStatus facilityDataStatus,
-        List<RouteStepResponse> steps
+        List<MapImageResponse> mapImages,
+        List<RouteSegment> segments
 ) {
     public RouteResponse {
-        steps = steps == null ? List.of() : List.copyOf(steps);
+        mapImages = mapImages == null ? List.of() : List.copyOf(mapImages);
+        segments = segments == null ? List.of() : List.copyOf(segments);
     }
 }

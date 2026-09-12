@@ -1,0 +1,246 @@
+{
+  "apiVersion": "v1.2",
+  "routeId": "route-example-ktx-to-arex",
+  "mapId": "SEOUL_STATION_KTX_TO_AREX",
+  "profile": "LUGGAGE",
+  "start": {
+    "placeId": "SEOUL_KTX_ARRIVAL",
+    "nodeId": "SEOUL-1F-N010",
+    "displayName": "Seoul Station KTX Arrival Concourse",
+    "floor": "1F"
+  },
+  "destination": {
+    "placeId": "SEOUL_AREX_PLATFORM",
+    "nodeId": "SEOUL-AREX-N004",
+    "displayName": "AREX Platform (B7)",
+    "floor": "B7"
+  },
+  "summary": {
+    "totalDistanceMeters": 162,
+    "estimatedDurationSeconds": 195,
+    "segmentCount": 3,
+    "usesStairs": false,
+    "elevatorCount": 1
+  },
+  "facilityDataStatus": "STATIC",
+  "mapImages": [
+    {
+      "id": "SEOUL_KTX_OVERVIEW",
+      "displayName": "Seoul Station KTX / Line 1 / Line 4 Concourse Map",
+      "assetKey": "seoul-ktx-overview",
+      "intrinsicWidth": 2657,
+      "intrinsicHeight": 1786
+    },
+    {
+      "id": "SEOUL_AREX_EXPLODED",
+      "displayName": "Seoul Station Airport Railroad Floors",
+      "assetKey": "seoul-arex-exploded",
+      "intrinsicWidth": 2657,
+      "intrinsicHeight": 1786
+    }
+  ],
+  "segments": [
+    {
+      "segmentType": "MAP",
+      "sequence": 1,
+      "mapImageId": "SEOUL_KTX_OVERVIEW",
+      "floor": "1F",
+      "nodes": [
+        {
+          "id": "SEOUL-1F-N010",
+          "nodeType": "PLATFORM_POINT",
+          "floor": "1F",
+          "mapImageId": "SEOUL_KTX_OVERVIEW",
+          "imageX": 0.15,
+          "imageY": 0.30,
+          "description": "KTX arrival platform area.",
+          "facilityId": null
+        },
+        {
+          "id": "SEOUL-1F-N020",
+          "nodeType": "GATE",
+          "floor": "1F",
+          "mapImageId": "SEOUL_KTX_OVERVIEW",
+          "imageX": 0.32,
+          "imageY": 0.34,
+          "description": "Ticket gates for KTX / ITX-Saemaul / Line 1 Cheonan Express.",
+          "facilityId": null
+        },
+        {
+          "id": "SEOUL-1F-N030",
+          "nodeType": "INTERSECTION",
+          "floor": "1F",
+          "mapImageId": "SEOUL_KTX_OVERVIEW",
+          "imageX": 0.53,
+          "imageY": 0.32,
+          "description": "Main concourse hub near the information booth.",
+          "facilityId": null
+        },
+        {
+          "id": "SEOUL-1F-N110",
+          "nodeType": "CORRIDOR_END",
+          "floor": "1F",
+          "mapImageId": "SEOUL_KTX_OVERVIEW",
+          "imageX": 0.27,
+          "imageY": 0.50,
+          "description": "Exit 15 - transfer point to the Airport Railroad map.",
+          "facilityId": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "SEOUL-E001",
+          "fromNodeId": "SEOUL-1F-N010",
+          "toNodeId": "SEOUL-1F-N020",
+          "distanceMeters": 10,
+          "baseDurationSeconds": 8,
+          "movementType": "WALK",
+          "instruction": "Walk toward the ticket gates.",
+          "facilityId": null,
+          "accessible": true,
+          "geometry": [
+            { "x": 0.15, "y": 0.30 },
+            { "x": 0.32, "y": 0.34 }
+          ]
+        },
+        {
+          "id": "SEOUL-E002",
+          "fromNodeId": "SEOUL-1F-N020",
+          "toNodeId": "SEOUL-1F-N030",
+          "distanceMeters": 15,
+          "baseDurationSeconds": 13,
+          "movementType": "WALK",
+          "instruction": "Continue to the main concourse hub.",
+          "facilityId": null,
+          "accessible": true,
+          "geometry": [
+            { "x": 0.32, "y": 0.34 },
+            { "x": 0.53, "y": 0.32 }
+          ]
+        },
+        {
+          "id": "SEOUL-E015",
+          "fromNodeId": "SEOUL-1F-N030",
+          "toNodeId": "SEOUL-1F-N110",
+          "distanceMeters": 12,
+          "baseDurationSeconds": 10,
+          "movementType": "WALK",
+          "instruction": "Walk toward Exit 15 and the AREX signs.",
+          "facilityId": null,
+          "accessible": true,
+          "geometry": [
+            { "x": 0.53, "y": 0.32 },
+            { "x": 0.27, "y": 0.50 }
+          ]
+        }
+      ]
+    },
+    {
+      "segmentType": "TRANSITION",
+      "sequence": 2,
+      "mapTransition": true,
+      "fromMapImageId": "SEOUL_KTX_OVERVIEW",
+      "toMapImageId": "SEOUL_AREX_EXPLODED",
+      "fromNodeId": "SEOUL-1F-N110",
+      "toNodeId": "SEOUL-AREX-N001",
+      "instruction": "Continue on the Airport Railroad map."
+    },
+    {
+      "segmentType": "MAP",
+      "sequence": 3,
+      "mapImageId": "SEOUL_AREX_EXPLODED",
+      "floor": "1F",
+      "nodes": [
+        {
+          "id": "SEOUL-AREX-N001",
+          "nodeType": "CORRIDOR_END",
+          "floor": "1F",
+          "mapImageId": "SEOUL_AREX_EXPLODED",
+          "imageX": 0.58,
+          "imageY": 0.09,
+          "description": "Continue from the Exit 15 connection toward Airport Railroad.",
+          "facilityId": null
+        },
+        {
+          "id": "SEOUL-AREX-N002",
+          "nodeType": "ELEVATOR_ENTRANCE",
+          "floor": "B2",
+          "mapImageId": "SEOUL_AREX_EXPLODED",
+          "imageX": 0.55,
+          "imageY": 0.58,
+          "description": "Take the elevator toward the Airport Railroad platform level.",
+          "facilityId": "SEOUL-AREX-ELEVATOR-01"
+        },
+        {
+          "id": "SEOUL-AREX-N003",
+          "nodeType": "ELEVATOR_EXIT",
+          "floor": "B7",
+          "mapImageId": "SEOUL_AREX_EXPLODED",
+          "imageX": 0.52,
+          "imageY": 0.84,
+          "description": "Leave the elevator and continue to the AREX platform.",
+          "facilityId": "SEOUL-AREX-ELEVATOR-01"
+        },
+        {
+          "id": "SEOUL-AREX-N004",
+          "nodeType": "DESTINATION",
+          "floor": "B7",
+          "mapImageId": "SEOUL_AREX_EXPLODED",
+          "imageX": 0.67,
+          "imageY": 0.91,
+          "description": "Airport Railroad boarding platform.",
+          "facilityId": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "SEOUL-E017",
+          "fromNodeId": "SEOUL-AREX-N001",
+          "toNodeId": "SEOUL-AREX-N002",
+          "distanceMeters": 65,
+          "baseDurationSeconds": 54,
+          "movementType": "WALK",
+          "instruction": "Follow the Airport Railroad route to the elevator on B2.",
+          "facilityId": null,
+          "accessible": true,
+          "geometry": [
+            { "x": 0.58, "y": 0.09 },
+            { "x": 0.61, "y": 0.30 },
+            { "x": 0.55, "y": 0.58 }
+          ]
+        },
+        {
+          "id": "SEOUL-E018",
+          "fromNodeId": "SEOUL-AREX-N002",
+          "toNodeId": "SEOUL-AREX-N003",
+          "distanceMeters": 0,
+          "baseDurationSeconds": 15,
+          "movementType": "ELEVATOR",
+          "instruction": "Take the elevator down to B7.",
+          "facilityId": "SEOUL-AREX-ELEVATOR-01",
+          "accessible": true,
+          "geometry": [
+            { "x": 0.55, "y": 0.58 },
+            { "x": 0.52, "y": 0.84 }
+          ]
+        },
+        {
+          "id": "SEOUL-E019",
+          "fromNodeId": "SEOUL-AREX-N003",
+          "toNodeId": "SEOUL-AREX-N004",
+          "distanceMeters": 60,
+          "baseDurationSeconds": 50,
+          "movementType": "WALK",
+          "instruction": "Continue to the AREX platform.",
+          "facilityId": null,
+          "accessible": true,
+          "geometry": [
+            { "x": 0.52, "y": 0.84 },
+            { "x": 0.59, "y": 0.87 },
+            { "x": 0.67, "y": 0.91 }
+          ]
+        }
+      ]
+    }
+  ]
+}
