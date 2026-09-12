@@ -87,7 +87,10 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
   const advance = () => {
     setReviewId(null);
     if (isLast) {
-      navigation.navigate('Arrived', { route });
+      // Finished — replace, not navigate: leaving Guide underneath Arrived
+      // means its beforeRemove progress-guard (ADR-010) is still armed and
+      // would intercept "Plan another transfer"'s later navigation.reset().
+      navigation.replace('Arrived', { route });
     } else {
       setDoneCount((n) => Math.min(steps.length - 1, n + 1));
     }
