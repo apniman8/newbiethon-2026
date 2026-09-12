@@ -28,6 +28,23 @@ Two map-transition points now exist:
 The AREX coordinates, distances, and floor connections remain mock data
 until field verification.
 
+## Presentation route: Line 1 → Line 4
+
+The `SEOUL_LINE1_PLATFORM` → `SEOUL_LINE4_PLATFORM` route is the agreed
+presentation path. Its seven existing semantic nodes and six-edge topology
+are preserved, but their KTX overview coordinates and walking polylines were
+pixel-traced from the team-provided red route overlay instead of using the
+earlier visual placeholder coordinates.
+
+- Route: `N080 → N071 → N070 → N060 → N090 → N091 → N100`
+- Edge traversal: `E011(reverse) → E010(reverse) → E009(reverse) → E012 → E013 → E014`
+- Long walking edges now contain intermediate geometry points, so the SVG
+  follows the concourse bends instead of drawing endpoint-to-endpoint chords.
+- `distanceMeters` and `baseDurationSeconds` are intentionally unchanged in
+  this pass because the red overlay supplies shape but no trustworthy scale.
+- Source tag: `IMG-DIRECT` for the supplied route shape; `IMG-CALC` for the
+  normalized coordinates derived from its pixels.
+
 ## Per-field basis
 
 | Field | Basis | Tag |
@@ -43,6 +60,7 @@ until field verification.
 | `SEOUL-1F-N110` continuation into AREX | Exit 15 transition anchor inferred from both diagrams | UNVERIFIED |
 | AREX node coordinates and edge geometry | Visually assigned from the exploded diagram | IMG-CALC |
 | AREX edge distances and duration | Demo values without a reliable scale reference | ASSUMPTION |
+| Line 1 → Line 4 presentation geometry | Pixel-traced from the team-provided red route overlay | IMG-CALC |
 
 ## Open question before this is trustworthy for the demo
 

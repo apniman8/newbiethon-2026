@@ -151,8 +151,8 @@
       "nodeType": "INTERSECTION",
       "floor": "B1",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.65,
-      "imageY": 0.6,
+      "imageX": 0.55,
+      "imageY": 0.56,
       "description": "B1 concourse junction shared by Line 1 and Line 4.",
       "facilityId": null
     },
@@ -161,8 +161,8 @@
       "nodeType": "ESCALATOR_ENTRANCE",
       "floor": "B1",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.8,
-      "imageY": 0.55,
+      "imageX": 0.785,
+      "imageY": 0.474,
       "description": "Escalator entrance toward the Line 1 platform.",
       "facilityId": "SEOUL-ESCALATOR-L1"
     },
@@ -171,8 +171,8 @@
       "nodeType": "ESCALATOR_EXIT",
       "floor": "B2",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.83,
-      "imageY": 0.68,
+      "imageX": 0.8,
+      "imageY": 0.47,
       "description": "Escalator exit at the Line 1 platform level.",
       "facilityId": "SEOUL-ESCALATOR-L1"
     },
@@ -181,8 +181,8 @@
       "nodeType": "DESTINATION",
       "floor": "B2",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.85,
-      "imageY": 0.72,
+      "imageX": 0.817,
+      "imageY": 0.466,
       "description": "Line 1 platform (B2).",
       "facilityId": null
     },
@@ -191,8 +191,8 @@
       "nodeType": "ESCALATOR_ENTRANCE",
       "floor": "B1",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.55,
-      "imageY": 0.75,
+      "imageX": 0.46,
+      "imageY": 0.72,
       "description": "Escalator entrance toward the Line 4 platform.",
       "facilityId": "SEOUL-ESCALATOR-L4"
     },
@@ -201,8 +201,8 @@
       "nodeType": "ESCALATOR_EXIT",
       "floor": "B2",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.55,
-      "imageY": 0.85,
+      "imageX": 0.445,
+      "imageY": 0.725,
       "description": "Escalator exit at the Line 4 platform level.",
       "facilityId": "SEOUL-ESCALATOR-L4"
     },
@@ -211,8 +211,8 @@
       "nodeType": "DESTINATION",
       "floor": "B2",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.55,
-      "imageY": 0.9,
+      "imageX": 0.29,
+      "imageY": 0.79,
       "description": "Line 4 platform (B2).",
       "facilityId": null
     },
@@ -447,8 +447,8 @@
           "y": 0.55
         },
         {
-          "x": 0.65,
-          "y": 0.6
+          "x": 0.55,
+          "y": 0.56
         }
       ]
     },
@@ -469,8 +469,8 @@
           "y": 0.56
         },
         {
-          "x": 0.65,
-          "y": 0.6
+          "x": 0.55,
+          "y": 0.56
         }
       ]
     },
@@ -487,12 +487,24 @@
       "accessible": true,
       "geometry": [
         {
-          "x": 0.65,
-          "y": 0.6
+          "x": 0.55,
+          "y": 0.56
         },
         {
-          "x": 0.8,
-          "y": 0.55
+          "x": 0.6,
+          "y": 0.54
+        },
+        {
+          "x": 0.66,
+          "y": 0.52
+        },
+        {
+          "x": 0.72,
+          "y": 0.495
+        },
+        {
+          "x": 0.785,
+          "y": 0.474
         }
       ]
     },
@@ -509,12 +521,12 @@
       "accessible": false,
       "geometry": [
         {
-          "x": 0.8,
-          "y": 0.55
+          "x": 0.785,
+          "y": 0.474
         },
         {
-          "x": 0.83,
-          "y": 0.68
+          "x": 0.8,
+          "y": 0.47
         }
       ]
     },
@@ -531,12 +543,12 @@
       "accessible": true,
       "geometry": [
         {
-          "x": 0.83,
-          "y": 0.68
+          "x": 0.8,
+          "y": 0.47
         },
         {
-          "x": 0.85,
-          "y": 0.72
+          "x": 0.817,
+          "y": 0.466
         }
       ]
     },
@@ -553,12 +565,28 @@
       "accessible": true,
       "geometry": [
         {
-          "x": 0.65,
-          "y": 0.6
+          "x": 0.55,
+          "y": 0.56
         },
         {
-          "x": 0.55,
-          "y": 0.75
+          "x": 0.525,
+          "y": 0.585
+        },
+        {
+          "x": 0.505,
+          "y": 0.62
+        },
+        {
+          "x": 0.485,
+          "y": 0.66
+        },
+        {
+          "x": 0.47,
+          "y": 0.7
+        },
+        {
+          "x": 0.46,
+          "y": 0.72
         }
       ]
     },
@@ -575,12 +603,12 @@
       "accessible": false,
       "geometry": [
         {
-          "x": 0.55,
-          "y": 0.75
+          "x": 0.46,
+          "y": 0.72
         },
         {
-          "x": 0.55,
-          "y": 0.85
+          "x": 0.445,
+          "y": 0.725
         }
       ]
     },
@@ -597,12 +625,24 @@
       "accessible": true,
       "geometry": [
         {
-          "x": 0.55,
-          "y": 0.85
+          "x": 0.445,
+          "y": 0.725
         },
         {
-          "x": 0.55,
-          "y": 0.9
+          "x": 0.39,
+          "y": 0.742
+        },
+        {
+          "x": 0.35,
+          "y": 0.755
+        },
+        {
+          "x": 0.32,
+          "y": 0.77
+        },
+        {
+          "x": 0.29,
+          "y": 0.79
         }
       ]
     },
