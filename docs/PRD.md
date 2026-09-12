@@ -17,7 +17,7 @@
 - UI 언어: **영문 단일**. 다국어 전환 UI는 이번 MVP 범위 밖이다(자세한 배경은 `docs/ADR.md` ADR-005).
 - 화면 흐름(5개, 선형): **출발지 입력 → 도착지 입력 → 로딩(경로 연결) → 안내 체크리스트 → 도착**. 상세 레이아웃은 `docs/UI_GUIDE.md` 참조.
 - 지도: 경로 좌표는 API가 정규화 값으로 내려주며(`imageX`/`imageY`, `geometry`) 프론트는 그것을 SVG로 그린다. 역이용안내도 이미지는 KTX·1호선·4호선 대합실 도면 1장이 들어와 경로 뒤에 깔린다. 공항철도 층별 도면은 아직 없어 환승 이후 항목은 배경 없이 표시된다. 좌표는 계약이 스스로 밝힌 demo 데이터라 실제 지형지물과 정확히 일치하지 않는다(`docs/ADR.md` ADR-016).
-- 데이터: 실제 백엔드의 `GET /api/v1/maps/{mapId}/places`, `POST /api/v1/routes`를 사용한다. API 주소는 `EXPO_PUBLIC_API_BASE_URL`로 주입하고 로컬 기본값은 `http://localhost:8080`이다.
+- 데이터: 실제 백엔드의 `GET /api/v1/maps/{mapId}/places`, `POST /api/v1/routes`를 사용한다. API 주소는 `EXPO_PUBLIC_API_BASE_URL`로 덮어쓸 수 있고 기본값은 Render 배포 주소 `https://newbiethon-2026.onrender.com`이다.
 
 ## 핵심 기능
 1. **출발지 선택** — API 장소 목록에서 출발 가능한 장소를 하나 고른다. 목록 조회 실패 시 재시도할 수 있다.

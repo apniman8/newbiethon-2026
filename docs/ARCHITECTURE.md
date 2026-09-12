@@ -46,7 +46,7 @@ LoadingScreen 마운트
                                                             → RouteResponse
   → navigation.replace('Guide', { route, originLabel })
 ```
-`routeService`는 `EXPO_PUBLIC_API_BASE_URL`(기본값 `http://localhost:8080`)의 실제 API만 호출한다. 장소 조회와 경로 조회는 모두 `RouteServiceError`로 실패 종류를 정규화한다.
+`routeService`는 `EXPO_PUBLIC_API_BASE_URL`(기본값 `https://newbiethon-2026.onrender.com`)의 실제 API만 호출한다. 장소 조회와 경로 조회는 모두 `RouteServiceError`로 실패 종류를 정규화한다.
 
 ## 장소 선택
 `PlaceSelector`는 백엔드가 반환한 안정적인 `placeId`를 radio-card UI로 선택한다. 텍스트 매칭 단계가 없으므로 한글·오타·중복 부분 문자열 문제를 만들지 않으며, 표시 이름과 ID를 navigation params로 다음 화면에 전달한다. API 조회 중에는 로딩 상태를, 실패하면 재시도 UI를 표시한다.

@@ -7,7 +7,7 @@
 import { errorKindFromBody, RouteServiceError } from './errors';
 import type { PlacesResponse, RouteRequest, RouteResponse } from '../types/contracts';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://newbiethon-2026.onrender.com';
 
 async function readErrorKind(res: Response) {
   let body: unknown = null;
