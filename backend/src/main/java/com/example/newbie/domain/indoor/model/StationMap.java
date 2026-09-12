@@ -10,6 +10,7 @@ public record StationMap(
         boolean demoData,
         FacilityDataStatus facilityDataStatus,
         Set<RoutingProfile> supportedProfiles,
+        List<MapImage> mapImages,
         List<SelectablePlace> places,
         List<GraphNode> nodes,
         List<GraphEdge> edges,
@@ -20,6 +21,7 @@ public record StationMap(
         Objects.requireNonNull(version, "version must not be null");
         Objects.requireNonNull(facilityDataStatus, "facilityDataStatus must not be null");
         supportedProfiles = supportedProfiles == null ? Set.of() : Set.copyOf(supportedProfiles);
+        mapImages = mapImages == null ? List.of() : List.copyOf(mapImages);
         places = places == null ? List.of() : List.copyOf(places);
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
         edges = edges == null ? List.of() : List.copyOf(edges);

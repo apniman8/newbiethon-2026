@@ -1,23 +1,28 @@
 package com.example.newbie.domain.indoor.model;
 
-import java.util.List;
 import java.util.Objects;
 
 public record GraphNode(
         String id,
         NodeType nodeType,
         String floor,
-        Double x,
-        Double y,
+        String mapImageId,
+        double imageX,
+        double imageY,
         String description,
-        List<Landmark> landmarks,
         String facilityId
 ) {
     public GraphNode {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(nodeType, "nodeType must not be null");
         Objects.requireNonNull(floor, "floor must not be null");
+        Objects.requireNonNull(mapImageId, "mapImageId must not be null");
         Objects.requireNonNull(description, "description must not be null");
-        landmarks = landmarks == null ? List.of() : List.copyOf(landmarks);
+        if (imageX < 0.0 || imageX > 1.0) {
+            throw new IllegalArgumentException("imageX must be between 0.0 and 1.0");
+        }
+        if (imageY < 0.0 || imageY > 1.0) {
+            throw new IllegalArgumentException("imageY must be between 0.0 and 1.0");
+        }
     }
 }
