@@ -3,3 +3,6 @@
 .idea/
 frontend/node_modules/
 backend/target/
+
+# Generated design canvas payloads — re-seed from the .dc.html sources instead
+design-review/**/easy-transfer-*.html

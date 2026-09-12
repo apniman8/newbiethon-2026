@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: #3366FF; }
+  a:hover { color: #2B54D6; }
+</style>
+</helmet>
+<div style="width:390px; height:844px; background:#FFFFFF; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; display:flex; flex-direction:column; overflow:hidden;">
+
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px 0;">
+    <button style="width:36px; height:36px; border-radius:18px; background:#F2F4F7; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+    </button>
+    <span style="font-size:13px; font-weight:600; color:#6B7280;">Step 2 of 3</span>
+    <div style="width:36px;"></div>
+  </div>
+
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 24px;">
+    <svg width="176" height="176" viewBox="0 0 64 64">
+      <path d="M 44 58 L 44 30 C 44 24 40 22 34 22 L 22 22" stroke="#3366FF" stroke-width="9" fill="none" />
+      <polygon points="24 8 24 36 6 22" fill="#3366FF" />
+    </svg>
+    <span style="font-size:92px; font-weight:700; letter-spacing:-4px; line-height:1; color:#111418;">18<span style="font-size:38px; font-weight:600; letter-spacing:-1px; color:#6B7280;">m</span></span>
+    <p style="margin:8px 0 0; font-size:22px; font-weight:600; line-height:30px; color:#4B5563; text-align:center; text-wrap:pretty;">Turn left, then walk to Elevator A</p>
+  </div>
+
+  <div style="display:flex; justify-content:center; gap:8px; padding:0 24px 20px;">
+    <span style="background:#F2F4F7; color:#4B5563; font-size:13px; font-weight:600; padding:8px 14px; border-radius:999px;">1F</span>
+    <span style="background:#F2F4F7; color:#4B5563; font-size:13px; font-weight:600; padding:8px 14px; border-radius:999px;">Elevator A</span>
+  </div>
+
+  <div style="padding:0 24px 32px;">
+    <button style="width:100%; height:64px; border:none; border-radius:16px; background:#3366FF; color:#FFFFFF; font-size:19px; font-weight:700; cursor:pointer; font-family:inherit;">Done — next step</button>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
