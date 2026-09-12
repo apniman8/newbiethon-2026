@@ -1,0 +1,74 @@
+{
+  "apiVersion": "v1.2",
+  "routeId": "mock-ktx-to-arex-luggage",
+  "mapId": "SEOUL_STATION_KTX_TO_AREX",
+  "profile": "LUGGAGE",
+  "start": {
+    "placeId": "SEOUL_KTX_ARRIVAL",
+    "nodeId": "SEOUL-KTX-N001",
+    "displayName": "Seoul Station KTX Arrival Hall",
+    "floor": "1F"
+  },
+  "destination": {
+    "placeId": "SEOUL_AREX_PLATFORM",
+    "nodeId": "SEOUL-AREX-N004",
+    "displayName": "AREX Platform",
+    "floor": "B7"
+  },
+  "summary": {
+    "totalDistanceMeters": 280,
+    "estimatedDurationSeconds": 420,
+    "segmentCount": 3,
+    "usesStairs": false,
+    "elevatorCount": 1
+  },
+  "facilityDataStatus": "STATIC",
+  "segments": [
+    {
+      "segmentType": "MAP",
+      "sequence": 1,
+      "mapImageId": "SEOUL_KTX_OVERVIEW",
+      "floor": "1F",
+      "nodeIds": [
+        "SEOUL-KTX-N001",
+        "SEOUL-KTX-N002",
+        "SEOUL-KTX-N003"
+      ],
+      "edgeIds": [
+        "SEOUL-KTX-E001",
+        "SEOUL-KTX-E002"
+      ],
+      "distanceMeters": 155,
+      "estimatedDurationSeconds": 150
+    },
+    {
+      "segmentType": "TRANSITION",
+      "sequence": 2,
+      "mapTransition": true,
+      "fromMapImageId": "SEOUL_KTX_OVERVIEW",
+      "toMapImageId": "SEOUL_AREX_EXPLODED",
+      "fromNodeId": "SEOUL-KTX-N003",
+      "toNodeId": "SEOUL-AREX-N001",
+      "instruction": "Continue on the Airport Railroad map."
+    },
+    {
+      "segmentType": "MAP",
+      "sequence": 3,
+      "mapImageId": "SEOUL_AREX_EXPLODED",
+      "floor": "1F-B7",
+      "nodeIds": [
+        "SEOUL-AREX-N001",
+        "SEOUL-AREX-N002",
+        "SEOUL-AREX-N003",
+        "SEOUL-AREX-N004"
+      ],
+      "edgeIds": [
+        "SEOUL-AREX-E001",
+        "SEOUL-AREX-E002",
+        "SEOUL-AREX-E003"
+      ],
+      "distanceMeters": 125,
+      "estimatedDurationSeconds": 270
+    }
+  ]
+}
