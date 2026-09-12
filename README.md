@@ -48,3 +48,8 @@ No local PostgreSQL instance or `.env` file is required.
 - OpenAPI JSON: `/v3/api-docs`
 
 The API is intended to run on port `8080` locally and uses Render's injected `PORT` value in production.
+
+The public demo API accepts browser requests from any origin by default so that
+Expo web previews, deployed frontends, and LAN development URLs all work. To
+restrict this in production, set `CORS_ALLOWED_ORIGINS` to a comma-separated
+list of allowed origins without trailing slashes.

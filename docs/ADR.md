@@ -86,4 +86,4 @@
 ### ADR-017: 실제 장소 목록 기반 선택 UI와 실 API를 사용한다
 **결정**: `OriginInput`과 `DestinationInput`은 `GET /api/v1/maps/{mapId}/places`로 장소를 조회하고, 각각 출발·도착 가능 항목을 카드 목록으로 제공한다. 선택된 `placeId`를 `POST /api/v1/routes`에 그대로 전달한다. `routeService`의 mock 분기와 자유 텍스트 매칭은 제거하고 실제 API만 사용한다.
 **이유**: 백엔드가 여러 출발지·도착지 조합을 지원하는데도 고정 출발지와 단일 mock route 때문에 UI에서 기능을 사용할 수 없었다. 서버가 제공한 ID를 직접 선택하면 모호한 부분 문자열 매칭도 제거된다.
-**트레이드오프**: 백엔드가 실행되지 않으면 첫 화면부터 장소 목록을 표시할 수 없다. 배포 환경은 `EXPO_PUBLIC_API_BASE_URL`과 `CORS_ALLOWED_ORIGINS`를 함께 설정해야 하며, 물리 기기 로컬 테스트에서는 localhost 대신 개발 PC의 LAN IP가 필요하다.
+**트레이드오프**: 백엔드가 실행되지 않으면 첫 화면부터 장소 목록을 표시할 수 없다. 공개 데모 API는 Expo 웹 미리보기·배포 프론트·LAN 개발 주소를 모두 지원하기 위해 기본적으로 모든 Origin을 허용한다. 운영에서 Origin을 제한하려면 `CORS_ALLOWED_ORIGINS`에 쉼표로 구분한 허용 주소를 설정한다. 물리 기기에서 로컬 백엔드를 테스트할 때는 localhost 대신 개발 PC의 LAN IP가 필요하다.

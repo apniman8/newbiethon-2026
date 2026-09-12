@@ -10,6 +10,9 @@ import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -34,6 +37,24 @@ class RouteApiIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         List<?> places = (List<?>) response.getBody().get("places");
         assertThat(places).hasSize(5);
+    }
+
+    @Test
+    void placesEndpointAllowsAnExpoWebOriginByDefault() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://example-expo-web.app");
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/maps/" + MAP_ID + "/places",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                Map.class,
+                Map.of()
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getAccessControlAllowOrigin())
+                .isEqualTo("https://example-expo-web.app");
     }
 
     @Test
