@@ -123,6 +123,7 @@ class GraphValidatorTest {
                 8,
                 MovementType.WALK,
                 "Walk.",
+                "Walk back.",
                 null,
                 true,
                 List.of(new ImagePoint(0.1, 0.1), new ImagePoint(0.2, 0.2))

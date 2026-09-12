@@ -55,6 +55,6 @@ class LuggageRouteCostPolicyTest {
     }
 
     private GraphEdge edge(MovementType movementType, String facilityId, int baseDurationSeconds) {
-        return new GraphEdge("E-1", "N-1", "N-2", baseDurationSeconds, baseDurationSeconds, movementType, "Test.", facilityId, true, List.of());
+        return new GraphEdge("E-1", "N-1", "N-2", baseDurationSeconds, baseDurationSeconds, movementType, "Test.", "Test reverse.", facilityId, true, List.of());
     }
 }

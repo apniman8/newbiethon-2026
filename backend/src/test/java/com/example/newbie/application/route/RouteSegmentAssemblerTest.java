@@ -100,7 +100,7 @@ class RouteSegmentAssemblerTest {
     }
 
     private GraphEdge walk(String id, String from, String to) {
-        return new GraphEdge(id, from, to, 10, 10, MovementType.WALK, "Walk.", null, true, List.of());
+        return new GraphEdge(id, from, to, 10, 10, MovementType.WALK, "Walk.", "Walk back.", null, true, List.of());
     }
 
     private StationMap stationMap(List<MapImage> mapImages, List<GraphNode> nodes, List<GraphEdge> edges) {

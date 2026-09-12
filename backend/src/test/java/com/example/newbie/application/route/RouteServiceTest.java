@@ -122,7 +122,7 @@ class RouteServiceTest {
         StubGraphRepository(FacilityStatus elevatorStatus) {
             GraphNode start = new GraphNode("N-1", NodeType.PLATFORM_POINT, "1F", MAP_IMAGE.id(), 0.1, 0.1, "Start", null);
             GraphNode end = new GraphNode("N-2", NodeType.DESTINATION, "1F", MAP_IMAGE.id(), 0.2, 0.2, "End", "F-1");
-            GraphEdge edge = new GraphEdge("E-1", "N-1", "N-2", 10, 45, MovementType.ELEVATOR, "Take the elevator.", "F-1", true, List.of());
+            GraphEdge edge = new GraphEdge("E-1", "N-1", "N-2", 10, 45, MovementType.ELEVATOR, "Take the elevator.", "Take the elevator back.", "F-1", true, List.of());
             Facility elevator = new Facility("F-1", FacilityType.ELEVATOR, "Test elevator", null, null, elevatorStatus);
 
             this.map = new StationMap(

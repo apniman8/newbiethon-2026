@@ -46,16 +46,21 @@ class DijkstraRouteFinderTest {
     }
 
     @Test
-    void respectsEdgeDirection() {
+    void traversesAnAuthoredEdgeBackwardsUsingItsReverseInstruction() {
         StationMap map = stationMap(
                 List.of(node("N1"), node("N2")),
-                List.of(walk("E-REVERSE", "N2", "N1", 5)),
+                List.of(walk("E-A", "N2", "N1", 5)),
                 List.of()
         );
 
         PathResult result = finder.find(map, "N1", "N2", standardContext());
 
-        assertEquals(PathResult.empty(), result);
+        assertEquals(1, result.edges().size());
+        GraphEdge traversed = result.edges().get(0);
+        assertEquals("E-A", traversed.id());
+        assertEquals("N1", traversed.fromNodeId());
+        assertEquals("N2", traversed.toNodeId());
+        assertEquals("Test reverse instruction.", traversed.instruction());
     }
 
     @Test
@@ -177,7 +182,7 @@ class DijkstraRouteFinderTest {
     }
 
     private GraphEdge edge(String id, String from, String to, MovementType movementType, int baseDurationSeconds, String facilityId) {
-        return new GraphEdge(id, from, to, baseDurationSeconds, baseDurationSeconds, movementType, "Test instruction.", facilityId, true, List.of());
+        return new GraphEdge(id, from, to, baseDurationSeconds, baseDurationSeconds, movementType, "Test instruction.", "Test reverse instruction.", facilityId, true, List.of());
     }
 
     private StationMap stationMap(List<GraphNode> nodes, List<GraphEdge> edges, List<Facility> facilities) {

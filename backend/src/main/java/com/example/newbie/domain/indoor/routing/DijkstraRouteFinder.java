@@ -84,10 +84,21 @@ public class DijkstraRouteFinder implements RouteFinder {
         return new PathResult(reconstructPath(destinationNodeId, predecessorEdge), bestCost.get(destinationNodeId));
     }
 
+    /**
+     * Every authored edge is traversable both ways: forward as-authored, and
+     * backward via {@link GraphEdge#reversed()}, which swaps from/to,
+     * instruction/reverseInstruction, and the geometry point order. This is
+     * the only place that distinction is made — everything downstream
+     * (cost policy, segment assembler, response DTOs) just sees a GraphEdge
+     * whose fromNodeId/toNodeId/instruction already match the direction
+     * actually travelled.
+     */
     private Map<String, List<GraphEdge>> groupByFromNode(List<GraphEdge> edges) {
         Map<String, List<GraphEdge>> outgoingEdges = new HashMap<>();
         for (GraphEdge edge : edges) {
             outgoingEdges.computeIfAbsent(edge.fromNodeId(), key -> new ArrayList<>()).add(edge);
+            GraphEdge reverse = edge.reversed();
+            outgoingEdges.computeIfAbsent(reverse.fromNodeId(), key -> new ArrayList<>()).add(reverse);
         }
         return outgoingEdges;
     }

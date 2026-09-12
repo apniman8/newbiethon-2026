@@ -128,13 +128,17 @@ public class GraphValidator {
     /**
      * Phase 2 only checks that a path exists at all (ignoring profile
      * movement rules) — the profile-aware reachability check belongs to
-     * Dijkstra + RouteCostPolicy in Phase 3.
+     * Dijkstra + RouteCostPolicy in Phase 3. Adjacency is built both ways,
+     * mirroring DijkstraRouteFinder: every authored edge is traversable in
+     * reverse too, so this must not be stricter than what routing actually
+     * allows at request time.
      */
     private List<String> checkConnectivity(StationMap map) {
         List<String> errors = new ArrayList<>();
         Map<String, List<String>> adjacency = new HashMap<>();
         for (GraphEdge edge : map.edges()) {
             adjacency.computeIfAbsent(edge.fromNodeId(), key -> new ArrayList<>()).add(edge.toNodeId());
+            adjacency.computeIfAbsent(edge.toNodeId(), key -> new ArrayList<>()).add(edge.fromNodeId());
         }
 
         List<String> startNodeIds = map.places().stream()
