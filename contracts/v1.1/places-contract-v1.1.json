@@ -1,0 +1,21 @@
+{
+  "mapId": "SEOUL_STATION_KTX_TO_AREX",
+  "places": [
+    {
+      "id": "SEOUL_KTX_ARRIVAL",
+      "displayName": "Seoul Station KTX Arrival Hall",
+      "description": "Start near the main KTX arrival concourse.",
+      "placeType": "ARRIVAL",
+      "selectableAsStart": true,
+      "selectableAsDestination": false
+    },
+    {
+      "id": "SEOUL_AREX_PLATFORM",
+      "displayName": "AREX Platform",
+      "description": "Airport Railroad boarding platform.",
+      "placeType": "PLATFORM",
+      "selectableAsStart": false,
+      "selectableAsDestination": true
+    }
+  ]
+}

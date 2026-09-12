@@ -4,11 +4,15 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
 
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "요청 형식이 올바르지 않습니다."),
-    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "요청 값이 올바르지 않습니다."),
-    SAMPLE_NOT_FOUND(HttpStatus.NOT_FOUND, "SAMPLE_NOT_FOUND", "Sample을 찾을 수 없습니다."),
-    API_NOT_FOUND(HttpStatus.NOT_FOUND, "API_NOT_FOUND", "요청한 API를 찾을 수 없습니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.");
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "The request format is invalid."),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "The request contains invalid values."),
+    INVALID_PLACE(HttpStatus.BAD_REQUEST, "INVALID_PLACE", "The selected place is not available on this map."),
+    INVALID_PROFILE(HttpStatus.BAD_REQUEST, "INVALID_PROFILE", "The selected travel profile is not supported."),
+    MAP_NOT_FOUND(HttpStatus.NOT_FOUND, "MAP_NOT_FOUND", "The requested station map was not found."),
+    ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROUTE_NOT_FOUND", "No accessible route is available for the selected profile."),
+    GRAPH_DATA_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "GRAPH_DATA_INVALID", "The station map data is invalid."),
+    API_NOT_FOUND(HttpStatus.NOT_FOUND, "API_NOT_FOUND", "The requested API endpoint was not found."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "An unexpected server error occurred.");
 
     private final HttpStatus status;
     private final String code;

@@ -3,10 +3,10 @@ package com.example.newbie.common.exception;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ErrorResponse(
-        @Schema(description = "오류 코드", example = "SAMPLE_NOT_FOUND")
+        @Schema(description = "Stable error code", example = "ROUTE_NOT_FOUND")
         String code,
 
-        @Schema(description = "오류 메시지", example = "Sample을 찾을 수 없습니다.")
+        @Schema(description = "English user-facing error message", example = "No accessible route is available for the selected profile.")
         String message
 ) {
 
