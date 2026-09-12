@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Platform, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
 
 import { colors, radius } from '../theme/tokens';
@@ -23,8 +23,8 @@ export interface MapPaneProps {
   mapAspect: number;
   /** Contract assetKey for the station map to draw behind the route. */
   assetKey?: string;
-  floorLabel: string;
-  height?: number;
+  /** Caps the panel's height (e.g. so the zoomed view doesn't outgrow the screen). */
+  maxHeight?: number;
 }
 
 // Share of the bounding box kept as breathing room, plus a fixed floor. Wide
@@ -59,16 +59,14 @@ function viewBox(all: ImagePoint[][], aspect: number): string {
   return `${minX - padX} ${minY - padY} ${w + padX * 2} ${h + padY * 2}`;
 }
 
-export function MapPane({
-  geometry,
-  segmentGeometry,
-  mapAspect,
-  assetKey,
-  floorLabel,
-  height = 220,
-}: MapPaneProps) {
+// Sizes itself from its own measured width and the map image's real aspect
+// ratio, rather than a fixed height guessed independently of that width —
+// a mismatched panel aspect is exactly what made "slice" crop oddly instead
+// of just filling the frame cleanly.
+export function MapPane({ geometry, segmentGeometry, mapAspect, assetKey, maxHeight }: MapPaneProps) {
   const reducedMotion = useReducedMotion();
   const dashOffset = useRef(new Animated.Value(0)).current;
+  const [panelWidth, setPanelWidth] = useState(0);
 
   useEffect(() => {
     // react-native-svg's animated Path emits a runtime error on React Native Web.
@@ -86,117 +84,110 @@ export function MapPane({
     return () => loop.stop();
   }, [reducedMotion, dashOffset]);
 
+  const onLayout = (e: LayoutChangeEvent) => setPanelWidth(e.nativeEvent.layout.width);
+  const height = panelWidth > 0 ? Math.min(panelWidth / mapAspect, maxHeight ?? Infinity) : 0;
+
   const asset = getMapAsset(assetKey);
   const here = geometry[geometry.length - 1];
   const start = geometry[0];
   const box = viewBox(segmentGeometry.length > 0 ? segmentGeometry : [geometry], mapAspect);
   // Stroke widths are in viewBox units, which shrink as the frame zooms in.
-  const unit = Math.max(...box.split(' ').slice(2).map(Number)) / height;
+  const unit = height > 0 ? Math.max(...box.split(' ').slice(2).map(Number)) / height : 0;
 
   return (
-    <View style={[styles.panel, { height }]}>
-      <Svg width="100%" height="100%" viewBox={box} preserveAspectRatio="xMidYMid meet">
-        <G>
-          {asset && (
-            <SvgImage
-              href={asset.source}
-              x={0}
-              y={0}
-              width={mapAspect}
-              height={1}
-              preserveAspectRatio="none"
-            />
-          )}
-          {segmentGeometry.map((path, i) => (
-            <Path
-              key={i}
-              d={toPath(path, mapAspect)}
-              fill="none"
-              stroke={colors.lineNormalNormal}
-              strokeWidth={unit * 5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          ))}
-          <Path
-            d={toPath(geometry, mapAspect)}
-            fill="none"
-            stroke={colors.white}
-            strokeWidth={unit * 7}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {Platform.OS === 'web' ? (
-            <Path
-              d={toPath(geometry, mapAspect)}
-              fill="none"
-              stroke={colors.primary}
-              strokeWidth={unit * 4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={`${unit * 9} ${unit * 7}`}
-            />
-          ) : (
-            <AnimatedPath
-              d={toPath(geometry, mapAspect)}
-              fill="none"
-              stroke={colors.primary}
-              strokeWidth={unit * 4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray={`${unit * 9} ${unit * 7}`}
-              strokeDashoffset={dashOffset}
-            />
-          )}
-          {start && (
-            <Circle
-              cx={start.x * mapAspect}
-              cy={start.y}
-              r={unit * 3.5}
-              fill={colors.white}
-              stroke={colors.primary}
-              strokeWidth={unit * 2}
-            />
-          )}
-          {here && (
-            <Circle
-              cx={here.x * mapAspect}
-              cy={here.y}
-              r={unit * 5.5}
-              fill={colors.primary}
-              stroke={colors.white}
-              strokeWidth={unit * 2.5}
-            />
-          )}
-        </G>
-      </Svg>
-      <View style={styles.floorBadge}>
-        <Text style={styles.floorBadgeText}>{floorLabel}</Text>
-      </View>
+    <View style={styles.panel} onLayout={onLayout}>
+      {height > 0 && (
+        <View style={{ height }}>
+          {/* "slice" fills the panel edge-to-edge (like object-fit: cover)
+              instead of letterboxing — the map should read as a full photo,
+              not a postage stamp floating in empty space. */}
+          <Svg width="100%" height="100%" viewBox={box} preserveAspectRatio="xMidYMid slice">
+            <G>
+              {asset && (
+                <SvgImage
+                  href={asset.source}
+                  x={0}
+                  y={0}
+                  width={mapAspect}
+                  height={1}
+                  preserveAspectRatio="none"
+                />
+              )}
+              {segmentGeometry.map((path, i) => (
+                <Path
+                  key={i}
+                  d={toPath(path, mapAspect)}
+                  fill="none"
+                  stroke={colors.lineNormalNormal}
+                  strokeWidth={unit * 5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ))}
+              <Path
+                d={toPath(geometry, mapAspect)}
+                fill="none"
+                stroke={colors.white}
+                strokeWidth={unit * 7}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {Platform.OS === 'web' ? (
+                <Path
+                  d={toPath(geometry, mapAspect)}
+                  fill="none"
+                  stroke={colors.primary}
+                  strokeWidth={unit * 4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray={`${unit * 9} ${unit * 7}`}
+                />
+              ) : (
+                <AnimatedPath
+                  d={toPath(geometry, mapAspect)}
+                  fill="none"
+                  stroke={colors.primary}
+                  strokeWidth={unit * 4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray={`${unit * 9} ${unit * 7}`}
+                  strokeDashoffset={dashOffset}
+                />
+              )}
+              {start && (
+                <Circle
+                  cx={start.x * mapAspect}
+                  cy={start.y}
+                  r={unit * 3.5}
+                  fill={colors.white}
+                  stroke={colors.primary}
+                  strokeWidth={unit * 2}
+                />
+              )}
+              {here && (
+                <Circle
+                  cx={here.x * mapAspect}
+                  cy={here.y}
+                  r={unit * 5.5}
+                  fill={colors.primary}
+                  stroke={colors.white}
+                  strokeWidth={unit * 2.5}
+                />
+              )}
+            </G>
+          </Svg>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   panel: {
+    width: '100%',
     borderRadius: radius.lg,
     overflow: 'hidden',
     backgroundColor: colors.fillAlternative,
     position: 'relative',
-  },
-  floorBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: radius.pill,
-    backgroundColor: colors.background,
-  },
-  floorBadgeText: {
-    color: colors.labelNeutral,
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.3,
   },
 });

@@ -32,6 +32,7 @@ export default function App() {
 const styles = StyleSheet.create({
   webBackdrop: {
     flex: 1,
+    width: '100%',
     minHeight: '100vh' as unknown as number,
     alignItems: 'center',
     justifyContent: 'center',

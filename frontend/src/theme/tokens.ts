@@ -25,6 +25,12 @@ export const colors = {
 
   white: '#FFFFFF',
   black: '#000000',
+
+  // Dark overlay behind a full-screen modal (e.g. the enlarged map view) —
+  // matches labelStrong at reduced opacity.
+  modalBackdrop: 'rgba(17,20,24,0.85)',
+  // A button's fill when it sits on top of that dark backdrop.
+  overlayButton: 'rgba(255,255,255,0.15)',
 } as const;
 
 export const spacing = {

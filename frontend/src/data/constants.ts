@@ -15,7 +15,12 @@ export const DEFAULT_ORIGIN_EXIT: (typeof ORIGIN_EXITS)[number] = '1';
 // screen's search suggestions; whatever the traveller picks is still purely
 // the display-only originLabel (docs/ADR.md ADR-013), so listing other
 // stations here doesn't imply the app can actually route from them.
+// The specific arrival point ADR-013 always routes from — picking this exact
+// name means the traveller is already there, so there's no exit to ask about.
+export const ARRIVAL_CONCOURSE_NAME = 'Seoul Station KTX Arrival Concourse';
+
 export const KNOWN_STATIONS = [
+  ARRIVAL_CONCOURSE_NAME,
   'Seoul Station',
   'Yongsan Station',
   'Gangnam Station',

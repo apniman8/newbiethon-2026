@@ -6,7 +6,7 @@ import { LuggageToggle } from '../components/LuggageToggle';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { ScreenTopBar } from '../components/ScreenTopBar';
 import { TextField } from '../components/TextField';
-import { DEFAULT_ORIGIN_EXIT, KNOWN_STATIONS, ORIGIN_EXITS } from '../data/constants';
+import { ARRIVAL_CONCOURSE_NAME, DEFAULT_ORIGIN_EXIT, KNOWN_STATIONS, ORIGIN_EXITS } from '../data/constants';
 import type { RootStackParamList } from '../navigation/types';
 import { colors, radius, spacing, typography } from '../theme/tokens';
 
@@ -31,11 +31,15 @@ export function OriginInputScreen({ navigation }: Props) {
     return found.slice(0, 5);
   }, [stationText]);
 
+  // Picking the arrival concourse by name means the traveller is already
+  // there — there's no exit left to ask about, unlike a plain "Seoul Station".
+  const isArrivalConcourse = stationText.trim().toLowerCase() === ARRIVAL_CONCOURSE_NAME.toLowerCase();
+
   const goNext = () => {
     const station = stationText.trim();
     if (!station) return;
     navigation.navigate('DestinationInput', {
-      originLabel: `${station} · Exit ${exit}`,
+      originLabel: isArrivalConcourse ? station : `${station} · Exit ${exit}`,
       profile: hasLuggage ? 'LUGGAGE' : 'STANDARD',
     });
   };
@@ -77,25 +81,27 @@ export function OriginInputScreen({ navigation }: Props) {
             )}
           </View>
 
-          <View style={styles.toggleBlock}>
-            <Text style={styles.toggleLabel}>WHICH EXIT ARE YOU NEAREST TO?</Text>
-            <View style={styles.toggleRow}>
-              {ORIGIN_EXITS.map((option) => {
-                const active = option === exit;
-                return (
-                  <Pressable
-                    key={option}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
-                    onPress={() => setExit(option)}
-                    style={[styles.toggle, active && styles.toggleActive]}
-                  >
-                    <Text style={[styles.toggleText, active && styles.toggleTextActive]}>Exit {option}</Text>
-                  </Pressable>
-                );
-              })}
+          {!isArrivalConcourse && (
+            <View style={styles.toggleBlock}>
+              <Text style={styles.toggleLabel}>WHICH EXIT ARE YOU NEAREST TO?</Text>
+              <View style={styles.toggleRow}>
+                {ORIGIN_EXITS.map((option) => {
+                  const active = option === exit;
+                  return (
+                    <Pressable
+                      key={option}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                      onPress={() => setExit(option)}
+                      style={[styles.toggle, active && styles.toggleActive]}
+                    >
+                      <Text style={[styles.toggleText, active && styles.toggleTextActive]}>Exit {option}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
 

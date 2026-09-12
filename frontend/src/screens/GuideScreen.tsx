@@ -15,7 +15,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { GuideStepCard } from '../components/GuideStepCard';
 import { GuideStepRow } from '../components/GuideStepRow';
 import { colors, radius, spacing } from '../theme/tokens';
-import { floorStopIndices, floorStops, toGuideSteps } from '../utils/routeSteps';
+import { floorStopIndices, floorStops, toGuideSteps, type GuideStep } from '../utils/routeSteps';
+import { fadeScrollbarOnScroll } from '../utils/webScrollTheme';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Guide'>;
@@ -33,6 +34,10 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
   const [doneCount, setDoneCount] = useState(0);
   const doneCountRef = useRef(doneCount);
   doneCountRef.current = doneCount;
+  // Set right before the guide finishes on its own (replace to Arrived), so
+  // the beforeRemove guard below doesn't mistake that intentional exit for
+  // an accidental one and block it.
+  const finishedRef = useRef(false);
 
   // A completed step tapped open for a second look — read-only, no effect
   // on progress. Cleared whenever the active step changes.
@@ -60,7 +65,7 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
   // docs/ADR.md ADR-010: confirm before losing progress past the first step.
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      if (doneCountRef.current === 0) return;
+      if (finishedRef.current || doneCountRef.current === 0) return;
       e.preventDefault();
       Alert.alert('Leave this guide?', "Your progress won't be saved.", [
         { text: 'Cancel', style: 'cancel' },
@@ -80,6 +85,13 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
     scrollRef.current?.scrollTo({ y: Math.max(activeOffset.current - 12, 0), animated: true });
   }, [activeIndex]);
 
+  // Web renders a plain overflow:auto div with a persistent scrollbar; this
+  // hides it until the traveller actually scrolls, matching how the
+  // indicator behaves natively.
+  useEffect(() => {
+    return fadeScrollbarOnScroll(scrollRef.current);
+  }, []);
+
   if (!hasSteps || !activeStep) {
     return <SafeAreaView style={styles.safeArea} />;
   }
@@ -90,11 +102,39 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
       // Finished — replace, not navigate: leaving Guide underneath Arrived
       // means its beforeRemove progress-guard (ADR-010) is still armed and
       // would intercept "Plan another transfer"'s later navigation.reset().
+      // finishedRef tells that same guard not to intercept THIS replace too.
+      finishedRef.current = true;
       navigation.replace('Arrived', { route });
     } else {
       setDoneCount((n) => Math.min(steps.length - 1, n + 1));
     }
   };
+
+  // Both done and upcoming rows can be tapped open to look at the step's
+  // full detail — a look, not a way to skip ahead: there's no onDone here,
+  // so completing still only happens through the active card's button.
+  const renderReviewableRow = (step: GuideStep, index: number, state: 'done' | 'upcoming') => (
+    <View key={step.id}>
+      <GuideStepRow
+        step={step}
+        index={index}
+        state={state}
+        onPress={() => setReviewId((current) => (current === step.id ? null : step.id))}
+      />
+      {reviewId === step.id && (
+        <View style={styles.reviewCard}>
+          <GuideStepCard
+            key={step.id}
+            step={step}
+            index={index}
+            total={steps.length}
+            floorLabel={stops[stepStops[index]]?.floor ?? ''}
+            isLast={false}
+          />
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -143,28 +183,7 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
       </View>
 
       <ScrollView ref={scrollRef} contentContainerStyle={styles.list}>
-        {steps.slice(0, activeIndex).map((step, i) => (
-          <View key={step.id}>
-            <GuideStepRow
-              step={step}
-              index={i}
-              state="done"
-              onPress={() => setReviewId((current) => (current === step.id ? null : step.id))}
-            />
-            {reviewId === step.id && (
-              <View style={styles.reviewCard}>
-                <GuideStepCard
-                  key={step.id}
-                  step={step}
-                  index={i}
-                  total={steps.length}
-                  floorLabel={stops[stepStops[i]]?.floor ?? ''}
-                  isLast={false}
-                />
-              </View>
-            )}
-          </View>
-        ))}
+        {steps.slice(0, activeIndex).map((step, i) => renderReviewableRow(step, i, 'done'))}
 
         <View onLayout={(e) => (activeOffset.current = e.nativeEvent.layout.y)}>
           <GuideStepCard
@@ -178,14 +197,9 @@ export function GuideScreen({ route: navRoute, navigation }: Props) {
           />
         </View>
 
-        {steps.slice(activeIndex + 1).map((step, i) => (
-          <GuideStepRow
-            key={step.id}
-            step={step}
-            index={activeIndex + 1 + i}
-            state="upcoming"
-          />
-        ))}
+        {steps
+          .slice(activeIndex + 1)
+          .map((step, i) => renderReviewableRow(step, activeIndex + 1 + i, 'upcoming'))}
       </ScrollView>
     </SafeAreaView>
   );
