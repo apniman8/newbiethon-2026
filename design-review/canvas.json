@@ -1,0 +1,23 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 900, "title": "Flow prototype", "is_interactive": true },
+    { "file": "ErrorStates.dc.html", "x": 520, "y": 0, "w": 800, "h": 780, "title": "Error & edge states" }
+  ],
+  "annotations": [
+    {
+      "id": "flow-note",
+      "x": 0,
+      "y": -150,
+      "w": 390,
+      "text": "Tap through it — this one is live.\nType \"arex\" or \"line\" to see the suggestion list; type anything else to land in the not-found state. The × on the guidance screen is new."
+    },
+    {
+      "id": "states-note",
+      "x": 520,
+      "y": -150,
+      "w": 420,
+      "text": "Four failure kinds, each with its own wording and its own action. Retry only where retrying can actually help."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}
