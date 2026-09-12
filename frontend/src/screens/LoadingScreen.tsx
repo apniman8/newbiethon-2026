@@ -50,7 +50,7 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
           ? `${originQuery} · Exit ${originExitNumber}`
           : originQuery;
 
-        navigation.replace('TurnByTurn', { route: routeResponse, originLabel });
+        navigation.replace('Guide', { route: routeResponse, originLabel });
       } catch (e) {
         if (cancelled) return;
         setErrorKind(e instanceof RouteServiceError ? e.kind : 'SERVER_ERROR');

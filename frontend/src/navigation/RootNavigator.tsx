@@ -6,13 +6,13 @@ import { ArrivedScreen } from '../screens/ArrivedScreen';
 import { DestinationInputScreen } from '../screens/DestinationInputScreen';
 import { LoadingScreen } from '../screens/LoadingScreen';
 import { OriginInputScreen } from '../screens/OriginInputScreen';
-import { TurnByTurnScreen } from '../screens/TurnByTurnScreen';
+import { GuideScreen } from '../screens/GuideScreen';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // Flow: origin (free text + exit number) -> destination (free text) ->
-// loading (resolves + fetches the route) -> turn-by-turn map -> arrived.
+// loading (resolves + fetches the route) -> guide checklist -> arrived.
 // docs/PRD.md "핵심 기능" / docs/ARCHITECTURE.md 디렉토리 구조.
 export function RootNavigator() {
   return (
@@ -21,7 +21,7 @@ export function RootNavigator() {
         <Stack.Screen name="OriginInput" component={OriginInputScreen} />
         <Stack.Screen name="DestinationInput" component={DestinationInputScreen} />
         <Stack.Screen name="Loading" component={LoadingScreen} />
-        <Stack.Screen name="TurnByTurn" component={TurnByTurnScreen} />
+        <Stack.Screen name="Guide" component={GuideScreen} />
         <Stack.Screen name="Arrived" component={ArrivedScreen} />
       </Stack.Navigator>
     </NavigationContainer>

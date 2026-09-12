@@ -1,195 +1,140 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, G, Path } from 'react-native-svg';
 
 import { colors, radius } from '../theme/tokens';
-import type { Point } from '../data/nodeCoordinates';
-import { computeCamera } from '../hooks/useMapCamera';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import type { ImagePoint } from '../types/contracts';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const IMAGE_W = 1575;
-const IMAGE_H = 800;
-const VIEW_W = 358;
-const VIEW_H = 360;
-const PAD = 72; // room for the "you are here" halo, see docs/UI_GUIDE.md MapPane
-
+// v1.2 hands us normalized 0..1 coordinates per map image (docs/ADR.md ADR-014).
+// The station map images themselves are not in the repo yet, so the route is
+// drawn on a neutral panel — the geometry is real, the backdrop is not a map.
 export interface MapPaneProps {
-  // Cumulative path up to and including the current step. An entry is null
-  // when its nodeId is missing from nodeCoordinates.ts (docs/ADR.md ADR-008).
-  points: (Point | null)[];
+  /** The current step's own path. */
+  geometry: ImagePoint[];
+  /** Every path in the same segment, drawn faintly for context. */
+  segmentGeometry: ImagePoint[][];
+  /** Map image width/height, so the shape is not stretched. */
+  mapAspect: number;
   floorLabel: string;
+  height?: number;
 }
 
-function pathD(points: Point[]): string {
-  return points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+const PAD = 0.08; // share of the bounding box kept as breathing room
+
+function toPath(points: ImagePoint[], aspect: number): string {
+  return points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${(p.x * aspect).toFixed(4)} ${p.y.toFixed(4)}`)
+    .join(' ');
 }
 
-function arrowHeadD([x, y]: Point, angleDeg: number): string {
-  const size = 12;
-  const rad = (angleDeg * Math.PI) / 180;
-  const tip: Point = [x + Math.cos(rad) * size, y + Math.sin(rad) * size];
-  const backAngle1 = rad + (Math.PI * 2.6) / 3;
-  const backAngle2 = rad - (Math.PI * 2.6) / 3;
-  const back1: Point = [x + Math.cos(backAngle1) * size, y + Math.sin(backAngle1) * size];
-  const back2: Point = [x + Math.cos(backAngle2) * size, y + Math.sin(backAngle2) * size];
-  return `M ${tip[0]} ${tip[1]} L ${back1[0]} ${back1[1]} L ${back2[0]} ${back2[1]} Z`;
+function viewBox(all: ImagePoint[][], aspect: number): string {
+  const points = all.flat();
+  if (points.length === 0) return `0 0 ${aspect} 1`;
+
+  const xs = points.map((p) => p.x * aspect);
+  const ys = points.map((p) => p.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+
+  // A straight segment has zero extent on one axis; keep a floor so it still frames.
+  const w = Math.max(maxX - minX, 0.12);
+  const h = Math.max(maxY - minY, 0.12);
+  const padX = w * PAD + 0.04;
+  const padY = h * PAD + 0.04;
+
+  return `${minX - padX} ${minY - padY} ${w + padX * 2} ${h + padY * 2}`;
 }
 
-export function MapPane({ points, floorLabel }: MapPaneProps) {
+export function MapPane({
+  geometry,
+  segmentGeometry,
+  mapAspect,
+  floorLabel,
+  height = 140,
+}: MapPaneProps) {
   const reducedMotion = useReducedMotion();
-  const [imageFailed, setImageFailed] = useState(false);
-  const translateX = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(1)).current;
   const dashOffset = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(0)).current;
-
-  // CRITICAL (docs/ADR.md ADR-008): a gap in the CURRENT segment means we
-  // don't silently plot a guessed location — show "map unavailable" instead.
-  const currentSegment = points.slice(-2);
-  const hasCoordinateGap = currentSegment.length < 2 || currentSegment.some((p) => p === null);
-  const showPlaceholder = hasCoordinateGap || imageFailed;
-
-  const resolvedPoints = points.filter((p): p is Point => p !== null);
-  const here: Point = resolvedPoints[resolvedPoints.length - 1] ?? [0, 0];
-  const prevPoint: Point = resolvedPoints.length > 1 ? resolvedPoints[resolvedPoints.length - 2] : here;
-  const segmentAngle =
-    (Math.atan2(here[1] - prevPoint[1], here[0] - prevPoint[0]) * 180) / Math.PI;
 
   useEffect(() => {
-    if (showPlaceholder) return;
-
-    const cam = computeCamera(resolvedPoints, VIEW_W, VIEW_H, PAD);
-    const targetX = VIEW_W / 2 - cam.cx * cam.zoom;
-    const targetY = VIEW_H / 2 - cam.cy * cam.zoom;
-
-    if (reducedMotion) {
-      translateX.setValue(targetX);
-      translateY.setValue(targetY);
-      scale.setValue(cam.zoom);
-      return;
-    }
-
-    Animated.parallel([
-      Animated.timing(translateX, {
-        toValue: targetX,
-        duration: 500,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: targetY,
-        duration: 500,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, {
-        toValue: cam.zoom,
-        duration: 500,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
-        useNativeDriver: true,
-      }),
-    ]).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(points), reducedMotion, showPlaceholder]);
-
-  useEffect(() => {
-    if (reducedMotion || showPlaceholder) return;
-
-    const dashLoop = Animated.loop(
+    if (reducedMotion) return;
+    const loop = Animated.loop(
       Animated.timing(dashOffset, {
-        toValue: -28,
+        toValue: -0.28,
         duration: 1100,
         easing: Easing.linear,
-        useNativeDriver: false, // strokeDashoffset isn't supported by the native driver
+        useNativeDriver: false, // strokeDashoffset is not a native-driver prop
       }),
     );
-    const pulseLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-        Animated.timing(pulse, {
-          toValue: 0,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
-        }),
-      ]),
-    );
-    dashLoop.start();
-    pulseLoop.start();
-    return () => {
-      dashLoop.stop();
-      pulseLoop.stop();
-    };
-  }, [reducedMotion, showPlaceholder]);
+    loop.start();
+    return () => loop.stop();
+  }, [reducedMotion, dashOffset]);
 
-  const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.4] });
-  const pulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.26, 0.08] });
+  const here = geometry[geometry.length - 1];
+  const start = geometry[0];
+  const box = viewBox(segmentGeometry.length > 0 ? segmentGeometry : [geometry], mapAspect);
+  // Stroke widths are in viewBox units, which shrink as the frame zooms in.
+  const unit = Math.max(...box.split(' ').slice(2).map(Number)) / height;
 
   return (
-    <View style={styles.panel}>
-      {showPlaceholder ? (
-        <View style={styles.placeholder}>
-          <Text style={styles.placeholderGlyph}>▦</Text>
-          <Text style={styles.placeholderText}>Map unavailable for this step</Text>
-        </View>
-      ) : (
-        <Animated.View
-          style={[
-            styles.layer,
-            {
-              transform: [{ translateX }, { translateY }, { scale }],
-            },
-          ]}
-        >
-          <Image
-            source={require('../assets/seoul-station-map.png')}
-            style={styles.image}
-            resizeMode="cover"
-            onError={() => setImageFailed(true)}
-          />
-          <Svg width={IMAGE_W} height={IMAGE_H} viewBox={`0 0 ${IMAGE_W} ${IMAGE_H}`} style={StyleSheet.absoluteFill}>
+    <View style={[styles.panel, { height }]}>
+      <Svg width="100%" height="100%" viewBox={box} preserveAspectRatio="xMidYMid meet">
+        <G>
+          {segmentGeometry.map((path, i) => (
             <Path
-              d={pathD(resolvedPoints)}
+              key={i}
+              d={toPath(path, mapAspect)}
               fill="none"
-              stroke="rgba(255,255,255,0.9)"
-              strokeWidth={13}
+              stroke={colors.lineNormalNormal}
+              strokeWidth={unit * 9}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <AnimatedPath
-              d={pathD(resolvedPoints)}
-              fill="none"
+          ))}
+          <Path
+            d={toPath(geometry, mapAspect)}
+            fill="none"
+            stroke={colors.white}
+            strokeWidth={unit * 11}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <AnimatedPath
+            d={toPath(geometry, mapAspect)}
+            fill="none"
+            stroke={colors.primary}
+            strokeWidth={unit * 6}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray={`${unit * 14} ${unit * 11}`}
+            strokeDashoffset={dashOffset}
+          />
+          {start && (
+            <Circle
+              cx={start.x * mapAspect}
+              cy={start.y}
+              r={unit * 5}
+              fill={colors.white}
               stroke={colors.primary}
-              strokeWidth={7}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeDasharray="16 14"
-              strokeDashoffset={dashOffset}
+              strokeWidth={unit * 3}
             />
-            <Path d={arrowHeadD(here, segmentAngle)} fill={colors.primary} />
-            <AnimatedCircle
-              cx={here[0]}
-              cy={here[1]}
-              r={20}
+          )}
+          {here && (
+            <Circle
+              cx={here.x * mapAspect}
+              cy={here.y}
+              r={unit * 8}
               fill={colors.primary}
-              opacity={pulseOpacity}
-              originX={here[0]}
-              originY={here[1]}
-              scale={pulseScale}
+              stroke={colors.white}
+              strokeWidth={unit * 4}
             />
-            <Circle cx={here[0]} cy={here[1]} r={9} fill={colors.primary} stroke="#FFFFFF" strokeWidth={4} />
-          </Svg>
-        </Animated.View>
-      )}
+          )}
+        </G>
+      </Svg>
       <View style={styles.floorBadge}>
         <Text style={styles.floorBadgeText}>{floorLabel}</Text>
       </View>
@@ -199,54 +144,22 @@ export function MapPane({ points, floorLabel }: MapPaneProps) {
 
 const styles = StyleSheet.create({
   panel: {
-    position: 'relative',
-    width: VIEW_W,
-    height: VIEW_H,
-    borderRadius: radius.xxl,
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    backgroundColor: '#171A20',
-    alignSelf: 'center',
-  },
-  layer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: IMAGE_W,
-    height: IMAGE_H,
-  },
-  image: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: IMAGE_W,
-    height: IMAGE_H,
-  },
-  placeholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  placeholderGlyph: {
-    fontSize: 28,
-    color: 'rgba(255,255,255,0.35)',
-  },
-  placeholderText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.55)',
+    backgroundColor: colors.fillAlternative,
+    position: 'relative',
   },
   floorBadge: {
     position: 'absolute',
-    top: 12,
-    left: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    top: 10,
+    left: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(15,17,21,0.78)',
+    backgroundColor: colors.background,
   },
   floorBadgeText: {
-    color: '#FFFFFF',
+    color: colors.labelNeutral,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.3,

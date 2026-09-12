@@ -9,6 +9,6 @@ export type RootStackParamList = {
     destinationQuery: string;
     profile: RoutingProfile;
   };
-  TurnByTurn: { route: RouteResponse; originLabel: string };
+  Guide: { route: RouteResponse; originLabel: string };
   Arrived: { route: RouteResponse };
 };
