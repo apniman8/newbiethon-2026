@@ -3,7 +3,7 @@ package com.example.newbie.api.route.dto;
 public record RouteSummaryResponse(
         int totalDistanceMeters,
         int estimatedDurationSeconds,
-        int stepCount,
+        int segmentCount,
         boolean usesStairs,
         int elevatorCount
 ) {

@@ -1,11 +1,9 @@
 package com.example.newbie.api.route;
 
 import com.example.newbie.api.route.dto.RouteRequest;
-import com.example.newbie.api.route.dto.v12.RouteV12Response;
-import com.example.newbie.application.route.RouteProvider;
-import com.example.newbie.application.route.RouteQuery;
+import com.example.newbie.api.route.dto.RouteResponse;
+import com.example.newbie.application.route.RouteService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,20 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/routes")
 public class RouteController {
 
-    private final RouteProvider routeProvider;
+    private final RouteService routeService;
 
-    public RouteController(RouteProvider routeProvider) {
-        this.routeProvider = routeProvider;
+    public RouteController(RouteService routeService) {
+        this.routeService = routeService;
     }
 
     @PostMapping
-    public ResponseEntity<RouteV12Response> findRoute(@Valid @RequestBody RouteRequest request) {
-        RouteQuery query = new RouteQuery(
-                request.mapId(),
-                request.startPlaceId(),
-                request.destinationPlaceId(),
-                request.profile()
-        );
-        return ResponseEntity.ok(RouteV12Response.from(routeProvider.findRoute(query)));
+    public RouteResponse createRoute(@Valid @RequestBody RouteRequest request) {
+        return routeService.createRoute(request);
     }
 }

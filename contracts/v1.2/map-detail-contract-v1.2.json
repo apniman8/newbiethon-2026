@@ -21,36 +21,47 @@
   ],
   "nodes": [
     {
-      "id": "SEOUL-KTX-N001",
+      "id": "SEOUL-1F-N010",
       "nodeType": "PLATFORM_POINT",
       "floor": "1F",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.12,
-      "imageY": 0.55,
+      "imageX": 0.15,
+      "imageY": 0.30,
       "title": "KTX arrival point",
-      "description": "Start near the KTX arrival concourse.",
+      "description": "KTX arrival platform area.",
       "facilityId": null
     },
     {
-      "id": "SEOUL-KTX-N002",
+      "id": "SEOUL-1F-N020",
+      "nodeType": "GATE",
+      "floor": "1F",
+      "mapImageId": "SEOUL_KTX_OVERVIEW",
+      "imageX": 0.32,
+      "imageY": 0.34,
+      "title": "KTX ticket gates",
+      "description": "Ticket gates for KTX / ITX-Saemaul / Line 1 Cheonan Express.",
+      "facilityId": null
+    },
+    {
+      "id": "SEOUL-1F-N030",
       "nodeType": "INTERSECTION",
       "floor": "1F",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.31,
-      "imageY": 0.48,
+      "imageX": 0.53,
+      "imageY": 0.32,
       "title": "Main concourse junction",
-      "description": "Follow the concourse toward Exit 15 and Airport Railroad.",
+      "description": "Main concourse hub near the information booth.",
       "facilityId": null
     },
     {
-      "id": "SEOUL-KTX-N003",
+      "id": "SEOUL-1F-N110",
       "nodeType": "CORRIDOR_END",
       "floor": "1F",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
-      "imageX": 0.25,
-      "imageY": 0.62,
+      "imageX": 0.27,
+      "imageY": 0.50,
       "title": "Exit 15 transfer point",
-      "description": "Switch to the Airport Railroad floor map here.",
+      "description": "Exit 15 - transfer point to the Airport Railroad map.",
       "facilityId": null
     },
     {
@@ -100,33 +111,43 @@
   ],
   "renderEdges": [
     {
-      "id": "SEOUL-KTX-E001",
-      "fromNodeId": "SEOUL-KTX-N001",
-      "toNodeId": "SEOUL-KTX-N002",
+      "id": "SEOUL-E001",
+      "fromNodeId": "SEOUL-1F-N010",
+      "toNodeId": "SEOUL-1F-N020",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
       "movementType": "WALK",
-      "distanceMeters": 80,
+      "distanceMeters": 10,
       "geometry": [
-        { "x": 0.12, "y": 0.55 },
-        { "x": 0.21, "y": 0.52 },
-        { "x": 0.31, "y": 0.48 }
+        { "x": 0.15, "y": 0.30 },
+        { "x": 0.32, "y": 0.34 }
       ]
     },
     {
-      "id": "SEOUL-KTX-E002",
-      "fromNodeId": "SEOUL-KTX-N002",
-      "toNodeId": "SEOUL-KTX-N003",
+      "id": "SEOUL-E002",
+      "fromNodeId": "SEOUL-1F-N020",
+      "toNodeId": "SEOUL-1F-N030",
       "mapImageId": "SEOUL_KTX_OVERVIEW",
       "movementType": "WALK",
-      "distanceMeters": 75,
+      "distanceMeters": 15,
       "geometry": [
-        { "x": 0.31, "y": 0.48 },
-        { "x": 0.34, "y": 0.56 },
-        { "x": 0.25, "y": 0.62 }
+        { "x": 0.32, "y": 0.34 },
+        { "x": 0.53, "y": 0.32 }
       ]
     },
     {
-      "id": "SEOUL-AREX-E001",
+      "id": "SEOUL-E015",
+      "fromNodeId": "SEOUL-1F-N030",
+      "toNodeId": "SEOUL-1F-N110",
+      "mapImageId": "SEOUL_KTX_OVERVIEW",
+      "movementType": "WALK",
+      "distanceMeters": 12,
+      "geometry": [
+        { "x": 0.53, "y": 0.32 },
+        { "x": 0.27, "y": 0.50 }
+      ]
+    },
+    {
+      "id": "SEOUL-E017",
       "fromNodeId": "SEOUL-AREX-N001",
       "toNodeId": "SEOUL-AREX-N002",
       "mapImageId": "SEOUL_AREX_EXPLODED",
@@ -139,7 +160,7 @@
       ]
     },
     {
-      "id": "SEOUL-AREX-E002",
+      "id": "SEOUL-E018",
       "fromNodeId": "SEOUL-AREX-N002",
       "toNodeId": "SEOUL-AREX-N003",
       "mapImageId": "SEOUL_AREX_EXPLODED",
@@ -152,7 +173,7 @@
       "facilityId": "SEOUL-AREX-ELEVATOR-01"
     },
     {
-      "id": "SEOUL-AREX-E003",
+      "id": "SEOUL-E019",
       "fromNodeId": "SEOUL-AREX-N003",
       "toNodeId": "SEOUL-AREX-N004",
       "mapImageId": "SEOUL_AREX_EXPLODED",
@@ -167,8 +188,8 @@
   ],
   "transitionEdges": [
     {
-      "id": "SEOUL-TRANSITION-E001",
-      "fromNodeId": "SEOUL-KTX-N003",
+      "id": "SEOUL-E016",
+      "fromNodeId": "SEOUL-1F-N110",
       "toNodeId": "SEOUL-AREX-N001",
       "fromMapImageId": "SEOUL_KTX_OVERVIEW",
       "toMapImageId": "SEOUL_AREX_EXPLODED",

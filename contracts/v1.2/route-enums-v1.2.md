@@ -1,6 +1,6 @@
 # Easy-Transfer Route Contract v1.2
 
-The v1.2 fixtures are the frontend source of truth until the real graph provider replaces the mock provider.
+The v1.2 fixtures describe the response produced by the static JSON graph, Dijkstra route finder, and route segment assembler.
 
 ## Endpoint
 
@@ -21,14 +21,14 @@ Request example:
 
 ## Frontend integration
 
-- Load `map-detail-contract-v1.2.json` before rendering a route.
-- Join `segments[].nodeIds` with `nodes[].id`.
-- Join `segments[].edgeIds` with `renderEdges[].id`.
-- Render `renderEdges[].geometry` as SVG polylines over the matching map image.
+- Read the map assets from the top-level `mapImages` array.
+- A `MAP` segment contains the route's complete `nodes` and `edges` for that image.
+- Render `segments[].edges[].geometry` as SVG polylines over the matching map image.
+- Render `segments[].nodes` as clickable markers using normalized `imageX` and `imageY`.
 - Show a transition card instead of a polyline for a `TRANSITION` segment.
-- The current mock provider supports `STANDARD` and `LUGGAGE` for KTX arrival to AREX platform.
-- A same-place request returns HTTP 200 with zero summary values and an empty `segments` array.
-- Set `app.mock-route.enabled=false` only after a real `RouteProvider` implementation is available.
+- The current static graph supports `STANDARD` and `LUGGAGE` and includes a demo KTX-arrival-to-AREX-platform route.
+- A same-place request returns HTTP 200 with zero summary values and one `MAP` segment containing the selected node.
+- `routeId` is generated per request and must be treated as opaque.
 
 ## Enums
 
@@ -37,11 +37,11 @@ Request example:
 - `STANDARD`
 - `LUGGAGE`
 
-`WHEELCHAIR` is not exposed by the P0 mock because the route has not been field-verified.
+`WHEELCHAIR` is not exposed because the route has not been field-verified.
 
 ### SegmentType
 
-- `MAP`: Render `edgeIds` on `mapImageId`.
+- `MAP`: Render the segment's `edges` and `nodes` on `mapImageId`.
 - `TRANSITION`: Replace the current map with `toMapImageId` after showing `instruction`.
 
 ### MovementType

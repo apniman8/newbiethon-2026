@@ -1,5 +1,7 @@
 package com.example.newbie.domain.indoor.model;
 
+import java.util.List;
+
 public record GraphEdge(
         String id,
         String fromNodeId,
@@ -7,10 +9,10 @@ public record GraphEdge(
         int distanceMeters,
         int baseDurationSeconds,
         MovementType movementType,
-        Direction direction,
         String instruction,
         String facilityId,
-        boolean accessible
+        boolean accessible,
+        List<ImagePoint> geometry
 ) {
     public GraphEdge {
         id = GraphDataAssertions.requireText(id, "edge.id");
@@ -22,7 +24,7 @@ public record GraphEdge(
                 "edge.baseDurationSeconds"
         );
         movementType = GraphDataAssertions.requireValue(movementType, "edge.movementType");
-        direction = GraphDataAssertions.requireValue(direction, "edge.direction");
         instruction = GraphDataAssertions.requireText(instruction, "edge.instruction");
+        geometry = geometry == null ? List.of() : List.copyOf(geometry);
     }
 }
