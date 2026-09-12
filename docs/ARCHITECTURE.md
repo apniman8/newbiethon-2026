@@ -9,21 +9,20 @@ frontend/
 ├── index.ts                # Expo 엔트리 (registerRootComponent)
 ├── app.json                # Expo 앱 설정
 └── src/
-    ├── screens/             # OriginInput, DestinationInput, Loading, TurnByTurn, Arrived
-    ├── components/          # 화면에서 재사용하는 UI 조각 (TextField, MapPane, NavButton 등)
+    ├── screens/             # OriginInput, DestinationInput, Loading, Guide, Arrived
+    ├── components/          # 화면에서 재사용하는 UI 조각 (TextField, MapPane, GuideStepCard 등)
     ├── navigation/           # React Navigation 스택 정의, 라우트 파라미터 타입
     ├── theme/                # tokens.ts — 색상·타이포·간격·radius 상수 (fig-tokens.css 기반)
     ├── data/                 # 데이터 계층
-    │   ├── fixtures/          # contracts/v1.1 고정 JSON의 로컬 사본 (목데이터)
-    │   ├── nodeCoordinates.ts # 노드ID → 지도 원본 이미지 픽셀 좌표 (프론트 자체 관리)
+    │   ├── fixtures/          # contracts/v1.2 고정 JSON의 로컬 사본 (목데이터)
     │   ├── errors.ts          # RouteServiceError — 타입화된 에러 (아래 "에러 모델" 참조)
     │   ├── constants.ts       # MAP_ID, FIXED_START_PLACE_ID
     │   └── routeService.ts   # places/route 조회 함수 — fixture 또는 실제 API를 동일 인터페이스로 반환
     ├── utils/
-    │   └── matchPlace.ts      # 자유 입력된 도착지 텍스트를 알려진 장소와 매칭 (아래 "목적지 매칭" 참조)
-    ├── types/                # contracts/v1.1 스키마를 그대로 반영한 TS 타입
-    ├── hooks/                # 화면 간 공유되는 로직 (카메라 프레이밍, 모션 감소, 느린 로딩 힌트)
-    └── assets/               # seoul-station-map.png 등 번들 이미지
+    │   ├── matchPlace.ts      # 자유 입력된 도착지 텍스트를 알려진 장소와 매칭 (아래 "목적지 매칭" 참조)
+    │   └── routeSteps.ts      # v1.2 세그먼트를 체크리스트 항목 목록으로 펼침 (ADR-015)
+    ├── types/                # contracts/v1.2 스키마를 그대로 반영한 TS 타입
+    └── hooks/                # 화면 간 공유되는 로직 (모션 감소, 느린 로딩 힌트)
 ```
 
 ## 화면 흐름
@@ -31,8 +30,8 @@ frontend/
 OriginInput        (출발지 텍스트 + 출구 번호 입력)
   → DestinationInput (도착지 텍스트 입력 + 프로필 선택, 출발지 요약 표시)
     → Loading         (도착지 매칭 + 경로 조회)
-      → TurnByTurn      (지도 + 스텝별 안내) ─┬─ steps.length === 0 → Arrived로 즉시 대체
-                                              └─ 마지막 스텝 "I'm here" → Arrived
+      → Guide           (경로 전체 체크리스트) ─┬─ 항목 0개 → Arrived로 즉시 대체
+                                                └─ 마지막 항목 체크 → Arrived
         → Arrived         ("Plan another transfer" → OriginInput으로 스택 리셋)
 ```
 `OriginInput`과 `DestinationInput`은 입력값 검증(비어있지 않은지)만 하고 네트워크 요청을 하지 않는다 — 실제 데이터 조회와 실패 처리는 전부 `Loading` 화면에 모여 있다.
@@ -45,7 +44,7 @@ LoadingScreen 마운트
       null이면 RouteServiceError('NOT_FOUND')를 던지고 종료
   → routeService.getRoute({ mapId, startPlaceId: FIXED_START_PLACE_ID, destinationPlaceId, profile })
                                                             → RouteResponse
-  → navigation.replace('TurnByTurn', { route, originLabel })
+  → navigation.replace('Guide', { route, originLabel })
 ```
 `routeService`는 fixture와 실제 API를 같은 함수 시그니처(`Promise<PlacesResponse>`, `Promise<RouteResponse>`)로 감싸므로, 화면 컴포넌트는 데이터 출처를 알 필요가 없다. 전환은 `routeService.ts` 내부 구현만 바꾸면 된다.
 
@@ -58,16 +57,17 @@ LoadingScreen 마운트
 - 5개 화면은 선형 플로우이므로 `@react-navigation/native-stack` 하나로 충분하다. 전역 상태 라이브러리(Redux 등)는 도입하지 않는다.
 - 화면 간 전달값(`originQuery`, `originExitNumber`, `destinationQuery`, `profile`, 조회된 `RouteResponse`, 조합된 `originLabel`)은 React Navigation의 route params로 다음 화면에 넘긴다. 타입은 `src/navigation/types.ts`의 `RootStackParamList`.
 - 각 화면 내부의 순수 UI 상태(입력 텍스트, 포커스, 토글 등)는 `useState`로 충분하다.
-- 턴바이턴 화면의 지도 카메라 값(zoom/cx/cy)은 현재 스텝의 좌표에서 매 렌더마다 순수 함수로 계산한다(`useMemo`) — 별도 상태로 들고 있지 않는다.
+- 안내 화면은 `doneCount`(체크한 항목 수) 하나만 상태로 들고, 현재 항목·남은 거리·진행률은 전부 거기서 파생시킨다.
 
 ## 지도 렌더링
-- 원본 이미지 1장(`src/assets/seoul-station-map.png`, 1575×800)을 `View`에 절대 배치하고, `react-native-svg`로 동일 크기 오버레이(`Svg viewBox="0 0 1575 800"`)를 겹친다.
-- 좌표는 항상 원본 이미지 픽셀 좌표로 관리한다(`src/data/nodeCoordinates.ts`).
-- 카메라 팬/줌은 레이어 `View`의 `transform: [{translateX}, {translateY}, {scale}]`로 구현하고, 현재 구간(마지막 두 좌표) 기준으로 매 스텝 재계산한다. 상세 공식은 `docs/UI_GUIDE.md`의 지도 렌더링 규칙 참조.
-- `contracts/v1.1/node-image-key-v1.1.json`(노드별 개별 webp 이미지 매핑)은 이번 MVP에서 사용하지 않는다 — 이유는 `docs/ADR.md` ADR-003 참조.
+- 좌표는 전부 API가 내려준다: 노드는 `imageX`/`imageY`, 엣지는 `geometry[]`, 둘 다 **해당 지도 이미지 기준 0~1 정규화 값**이다(`docs/ADR.md` ADR-014). 프론트에는 좌표 테이블이 없다.
+- `MapPane`은 현재 항목의 `geometry`를 굵게, 같은 세그먼트의 나머지 엣지를 흐리게 그린다. `viewBox`는 세그먼트 전체의 바운딩 박스에 여백을 더해 계산하므로 항목이 바뀌면 자연스럽게 그 구간으로 확대된다 — 별도 카메라 로직이 필요 없다.
+- 정규화 좌표를 그대로 쓰면 지도 이미지의 가로세로비가 무시되어 형태가 찌그러진다. `mapImages[].intrinsicWidth/Height`에서 구한 `mapAspect`를 x에 곱해 원래 비율로 되돌린 뒤 그린다.
+- **역 안내도 이미지는 아직 저장소에 없다**(`mapImages[].assetKey`에 대응하는 파일 없음). 그래서 지금은 배경 없이 경로 형태만 그린다. 이미지가 들어오면 같은 정규화 좌표계 위에 `<Image>`를 깔기만 하면 된다.
 
 ## 타입
-- `src/types/`는 `contracts/v1.1/route-contract-v1.1.json`, `places-contract-v1.1.json`, `route-enums-v1.1.md`를 그대로 TS로 옮긴 것이다. 계약이 바뀌면(`v1.2` 등) 이 폴더만 갱신한다.
+- `src/types/`는 `contracts/v1.2/route-contract-v1.2.json`, `places-contract-v1.2.json`, `route-enums-v1.2.md`를 그대로 TS로 옮긴 것이다. 계약이 바뀌면 이 폴더만 갱신한다.
+- `RouteSegment`는 `segmentType`으로 갈라지는 판별 유니온(`MapSegment` | `TransitionSegment`)이다. 세그먼트를 직접 순회하는 코드는 `src/utils/routeSteps.ts` 하나뿐이고, 화면은 거기서 나온 평평한 `GuideStep[]`만 본다.
 
 ## 에러 모델
 "네트워크 끊김"과 "경로 없음"과 "서버 500"은 사용자에게 완전히 다른 메시지여야 한다(`docs/PRD.md` "데이터 로딩 실패" 표). 이를 위해 `routeService.ts`는 일반 `Error`가 아니라 아래 타입화된 에러만 던진다.
@@ -90,7 +90,7 @@ export class RouteServiceError extends Error {
 - 화면은 항상 `catch (e) { if (e instanceof RouteServiceError) ... }`로 `kind`를 분기해 `ErrorState` 컴포넌트에 넘긴다. `kind`별 문구는 화면 로직이 아니라 `ErrorState` 내부의 매핑 테이블 하나로 관리한다(중복 방지).
 
 ## 화면 상태 머신
-`LoadingScreen`은 아래 상태만 갖는다(성공 시 화면 자체를 벗어나 `TurnByTurn`으로 교체되므로 "ready" 상태가 없다):
+`LoadingScreen`은 아래 상태만 갖는다(성공 시 화면 자체를 벗어나 `Guide`로 교체되므로 "ready" 상태가 없다):
 ```ts
 // errorKind === null 이면 loading, 아니면 error
 type LoadingState = { errorKind: RouteServiceErrorKind | null };
@@ -103,10 +103,9 @@ type LoadingState = { errorKind: RouteServiceErrorKind | null };
 `useEffect` 기반 fetch는 항상 "이 effect가 마지막으로 실행된 것인지" 가드한다(취소 플래그) — 사용자가 재시도를 빠르게 두 번 트리거하는 등으로 이전 요청이 늦게 응답해 최신 상태를 덮어쓰는 레이스 컨디션을 막기 위함이다.
 
 ## 방어적 가드 (크래시 방지)
-- **빈 스텝 경로**: `RouteResponse.steps.length === 0`는 유효한 응답이다(출발지=도착지 등). 이제 경로 미리보기 화면이 없으므로, `TurnByTurnScreen`이 마운트 시점에 이 조건을 감지해 `navigation.replace('Arrived', { route })`로 즉시 대체한다 — 직접 재진입/뒤로가기 등 어떤 경로로 이 화면에 도달해도 빈 배열을 인덱싱해 죽는 일이 없어야 한다. React Hooks 규칙상 이 가드는 모든 훅 호출 **이후에** 조건부 반환으로 처리한다(하단 "훅 순서" 참고).
-- **좌표 테이블 미스**: `nodeCoordinates.ts`의 `getNodeCoordinate`는 실패를 침묵으로 감추지 않는다. 반환 타입은 `[number, number] | null`이며, 미스 시 `null`을 반환한다. `MapPane`은 현재 구간의 두 점 중 하나라도 `null`이면 지도 대신 회색 placeholder(`docs/UI_GUIDE.md` "지도 로드 실패" 참조)를 그리고, 지시문·랜드마크 콜아웃은 평소대로 렌더링한다.
-- **이미지 로드 실패**: `MapPane`의 `<Image>`는 `onError`를 반드시 연결하고, 에러 시 동일한 회색 placeholder로 전환한다(좌표 미스와 같은 폴백 UI 재사용).
-- **긴 텍스트 오버플로우**: 스크롤 가능한 콘텐츠(지시문, 랜드마크 설명)는 항상 `ScrollView`로 감싸고, 하단 액션 버튼(다음/이전/CTA)은 스크롤 영역 밖의 고정 `View`에 둔다. 어떤 화면도 콘텐츠 길이 때문에 버튼이 화면 밖으로 밀려나면 안 된다. 입력 화면(`OriginInput`/`DestinationInput`)은 추가로 `KeyboardAvoidingView`로 감싸 소프트 키보드가 입력 필드·버튼을 가리지 않게 한다.
-- **안내 중 이탈 확인**: `TurnByTurnScreen`은 `navigation.addListener('beforeRemove', ...)`로 하드웨어 back/스와이프를 가로채, `stepIndex > 0`일 때만 확인 다이얼로그를 띄운다. 첫 스텝(`stepIndex === 0`)에서는 그대로 나가게 둔다.
+- **항목 0개 경로**: 세그먼트를 펼친 결과가 비어 있는 응답은 유효하다(출발지=도착지 등). `GuideScreen`이 마운트 시점에 감지해 `navigation.replace('Arrived', { route })`로 즉시 대체한다 — 어떤 경로로 이 화면에 도달해도 빈 배열을 인덱싱해 죽는 일이 없어야 한다. React Hooks 규칙상 이 가드는 모든 훅 호출 **이후에** 조건부 반환으로 처리한다(하단 "훅 순서" 참고).
+- **지도 없이도 성립하는 안내**: 지도는 보조 수단이다. 배경 이미지가 없는 지금도, 좌표가 이상하더라도, 각 항목의 지시문과 도착 노드 설명만으로 안내가 성립해야 한다 — 지도 영역은 없어도 되는 요소로 취급하고 텍스트를 먼저 배치한다.
+- **긴 텍스트 오버플로우**: 체크리스트 전체가 `ScrollView` 안에 있고, 현재 항목의 CTA는 그 카드 안에 있다. 항목이 길어져도 버튼이 잘리지 않으며, 항목이 바뀌면 현재 카드 위치로 자동 스크롤한다. 입력 화면(`OriginInput`/`DestinationInput`)은 `KeyboardAvoidingView`로 감싸 소프트 키보드가 입력 필드·버튼을 가리지 않게 한다.
+- **안내 중 이탈 확인**: `GuideScreen`은 `navigation.addListener('beforeRemove', ...)`로 하드웨어 back/스와이프를 가로채, 체크한 항목이 하나라도 있을 때만 확인 다이얼로그를 띄운다. 최신 값을 읽어야 하므로 리스너는 `doneCount`를 ref로 참조한다(리스너를 매번 재등록하지 않기 위함).
 - **도착 후 스택 정리**: `ArrivedScreen`의 "Plan another transfer"는 `navigation.popToTop()`이 아니라 `navigation.reset({ index: 0, routes: [{ name: 'OriginInput' }] })`을 쓴다 — 종료된 안내 화면들이 back 스택에 남아 사용자가 실수로 되돌아가는 일을 막는다.
-- **훅 순서**: `TurnByTurnScreen`처럼 "특정 조건이면 이 화면을 그리지 않고 리다이렉트"하는 화면은, 모든 `useState`/`useEffect`/`useMemo` 호출을 조건 분기보다 먼저 배치하고 조건부 `return`은 그 뒤에 둔다. 조건부 반환을 훅 호출 사이에 넣으면 렌더마다 훅 호출 개수가 달라져 React가 에러를 던진다.
+- **훅 순서**: `GuideScreen`처럼 "특정 조건이면 이 화면을 그리지 않고 리다이렉트"하는 화면은, 모든 `useState`/`useEffect`/`useMemo` 호출을 조건 분기보다 먼저 배치하고 조건부 `return`은 그 뒤에 둔다. 조건부 반환을 훅 호출 사이에 넣으면 렌더마다 훅 호출 개수가 달라져 React가 에러를 던진다.

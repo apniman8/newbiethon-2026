@@ -30,7 +30,7 @@
 | `fillNormal` | `rgba(112,115,124,0.08)` | pressed 배경 |
 | `lineNormalNormal` | `#E8EBF0` | 구분선, 카드 보더 |
 | `background` | `#FFFFFF` | 화면 배경 |
-| `inverseBackground` | `#1B1C1E` | 경로 요약 히어로 카드, 턴바이턴 화면 배경(다크) |
+| `inverseBackground` | `#1B1C1E` | 어두운 면이 필요한 곳 (현재 화면들에서는 미사용) |
 | `calloutBackground` | `#EBF2FF` | 안내 콜아웃 배경 (primary 8% 톤) |
 | `routeOverlay` | `#E8352B` | (레거시) 지도 위 경로선 — 실제 확정 목업은 `primary` 블루 경로선을 쓴다. `MapPane`은 `primary`를 기본값으로 하고 색은 상수화해 둔다 |
 | `statusPositive` | `#00BF40` | 도착 화면 체크 아이콘 |
@@ -46,7 +46,8 @@
 | 섹션 라벨 (예: "FROM", "Platforms inside the gates") | 13 / 600, letterSpacing 0.4, uppercase | `labelAlternative` 색 |
 | 리스트 본문 | 15~16 / 600 | `labelStrong` |
 | 보조 설명 | 13 / 400 | `labelAlternative` |
-| 턴바이턴 지시문 (`instruction`) | 20 / 600, lineHeight 28 | 화면에서 가장 눈에 띄는 텍스트 다음으로 큼 |
+| 현재 항목 헤드라인 ("Walk · 65 m") | 24 / 700, letterSpacing -0.5 | 안내 화면에서 가장 큰 텍스트 |
+| 항목 지시문 (`instruction`) | 16 / 400, lineHeight 23 | `labelNeutral` |
 | 버튼 라벨 | 17 / 700 | |
 | 캡션 (층 배지, 진행 라벨) | 12 / 600~700 | |
 | 최소 본문 크기 | 12 | 이보다 작게 쓰지 않는다 |
@@ -75,12 +76,14 @@
 - 실패 시: 로딩 UI 전체를 `ErrorState`로 교체(아래 "에러·엣지 상태" 참조) — 레이아웃 점프를 굳이 막을 필요는 없다(화면이 완전히 바뀌는 것이 맞다).
 - 최소 노출 시간을 인위적으로 늘리지 않는다 — 빠르게 성공하면 그대로 다음 화면으로 넘어간다.
 
-### 04 · Turn-by-turn (핵심 화면)
-- 배경은 다크(`#0F1115`) — 지도·안내에 집중.
-- 상단 진행 트랙: 스텝 수만큼 `flex:1` bar, 지난/현재 `primary`, 이후 `rgba(255,255,255,.18)`.
-- 지도 패널: `MapPane` 참고. radius 20, 배경 `#171A20`, `overflow:hidden`.
-- 지시 블록: 52×52 방향 아이콘 타일(`primary` 배경, radius 16, 글자 26/700) + 이동수단 라벨(12/700, uppercase, `rgba(255,255,255,.5)`) + 거리(20/700, 흰색) → 지시문(20/600, 흰색) → 랜드마크 콜아웃(`rgba(255,255,255,.07)` 배경, radius 14, 타입 배지 + 이름(14/600) + 설명(13, `rgba(255,255,255,.62)`)).
-- 하단 버튼 행: 이전(56×56 정사각, `rgba(255,255,255,.12)` 배경) + 다음(`flex:1`, `primary` 배경). 마지막 스텝의 다음 버튼 라벨은 "I'm here"로 바뀐다.
+### 04 · Guide (핵심 화면)
+경로 전체가 세로 체크리스트로 펼쳐진다. 라이트 배경(`background`) — 이전 턴바이턴 안은 다크였지만, 체크리스트는 완료/현재/예정 세 상태를 대비로 구분해야 해서 라이트가 맞다.
+- 상단바: 닫기 버튼(36 원형, `fillAlternative`) + 목적지("To {destination}", 15/700) + 진행 메타("2 of 7 done · 137 m left", 12/500 `labelAlternative`). 아래 1px `lineNormalNormal` 구분선.
+- **완료 항목**: `fillAlternative` 배경, radius 14, 26px `statusPositive` 원에 흰 체크, 지시문은 `labelAlternative` + 취소선, 메타 한 줄.
+- **현재 항목(유일하게 펼쳐진 카드)**: 흰 배경, radius 16, **2px `primary` 보더**. 48px `primary` 아이콘 타일(이동수단 아이콘) + "STEP n — NOW"(12/700 `primary`) + 헤드라인("Walk · 65 m", 24/700) → 지시문(16/400 `labelNeutral`) → "WHEN YOU GET THERE" 콜아웃(`calloutBackground`, radius 12) → 지도 패널(높이 140) → `PrimaryButton`("Done — I'm here", 마지막 항목은 "I've arrived").
+- **예정 항목**: 투명 배경 + 1px `lineNormalNormal` 보더, 번호 배지(26px, 1.5px `#D7DBE2` 보더), 지시문 `labelStrong`.
+- 항목 간 간격 10, 목록 패딩 20.
+- 항목이 바뀌면 현재 카드 위치로 자동 스크롤한다.
 
 ### 05 · Arrived
 - 상단 72×72 원형 체크 아이콘(`statusPositive` 배경, 흰 체크).
@@ -102,49 +105,36 @@
 - 첫 화면(Origin input)에는 뒤로가기가 없으므로 이 컴포넌트를 쓰지 않는다.
 
 ## MapPane — 지도 렌더링 규칙
-지도는 공공데이터 역이용안내도 원본 이미지 **1장**(`src/assets/seoul-station-map.png`, 1575×800)을 쓰고, 스텝마다 그 이미지를 확대·이동(카메라 팬)해서 현재 구간만 보여준다. **스텝별 이미지 파일을 따로 만들지 않는다.**
+좌표는 API가 정규화 값(0~1)으로 내려준다(`docs/ADR.md` ADR-014). **역 안내도 이미지 파일은 아직 저장소에 없으므로 현재는 배경 없이 경로 형태만 그린다** — 지도가 아니라 "이 구간이 어떤 모양인지"를 보여주는 다이어그램이다.
 
-1. 지도 패널은 `overflow:hidden`인 고정 크기 `View`(예: 358×360)이고, 내부에 원본 크기 레이어를 절대 배치한다.
-2. 레이어 안에 `<Image>`와 동일 크기의 `react-native-svg` `<Svg viewBox="0 0 1575 800">` 오버레이를 겹친다. 좌표는 항상 **원본 이미지 픽셀 좌표**로 관리한다(`src/data/nodeCoordinates.ts`).
-3. 레이어의 `transform`에 `translateX`, `translateY`, `scale`를 적용하고 전환은 `Animated.timing`(약 500ms, easeInOut)으로 부드럽게 잇는다.
-4. 현위치 펄스 원은 스케일이 걸린 좌표계 안에서 크기가 함께 늘어나지 않도록 주의한다(RN에서는 별도 `Animated.Value`로 반경을 독립 애니메이션).
-5. 카메라 계산은 **현재 구간(마지막 두 좌표)** 기준으로 한다 — 전체 경로가 아니라 지금 지나는 구간이 패널 안에 들어와야 현위치 마커가 잘리지 않는다.
-
-```ts
-const VIEW_W = 358, VIEW_H = 360, PAD = 72; // PAD = 현위치 헤일로 여백
-
-function camera(points: [number, number][]) {
-  const [a, b] = points.slice(-2);
-  const minX = Math.min(a[0], b[0]), maxX = Math.max(a[0], b[0]);
-  const minY = Math.min(a[1], b[1]), maxY = Math.max(a[1], b[1]);
-  const zoom = Math.max(1, Math.min(2.6,
-    (VIEW_W - PAD * 2) / Math.max(maxX - minX, 40),
-    (VIEW_H - PAD * 2) / Math.max(maxY - minY, 40)));
-  return { zoom, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
-}
-```
+1. 패널은 카드 폭에 맞춰 늘어나고 높이만 고정(기본 140), radius 12, 배경 `fillAlternative`, `overflow: hidden`.
+2. `viewBox`는 **현재 세그먼트 전체**의 바운딩 박스 + 여백(8% + 0.04)으로 잡는다. 항목이 바뀌면 그 구간으로 자연스럽게 확대된다 — 별도 카메라 로직 없음.
+3. 정규화 x에 `mapAspect`(= `intrinsicWidth / intrinsicHeight`)를 곱해 원래 비율로 되돌린 뒤 그린다. 안 하면 형태가 찌그러진다.
+4. 직선 구간은 한 축의 길이가 0이므로, 바운딩 박스의 가로·세로에 최소값(0.12)을 둔다.
+5. 선 두께는 viewBox 단위라 확대될수록 얇아 보인다 — `unit`(박스 크기 ÷ 패널 높이)에 배수를 곱해 화면상 두께를 일정하게 맞춘다.
 
 ### 오버레이 요소 스펙
 | 요소 | 스펙 |
 |------|------|
-| 경로 외곽선 | stroke `#FFFFFF` (투명도 .9), width 13, round cap/join |
-| 경로 본선 | stroke `primary`, width 7, dasharray `16 14`, 1.1s 무한 흐름 애니메이션 |
-| 진행 화살촉 | 구간 끝점에 12px 삼각형, 구간 각도로 회전 |
-| 현위치 | r=9 채움 + 흰 테두리 4, 아래 r=20 헤일로(1.6s 펄스, opacity .26) |
-| 층 배지 | 패널 상단 좌측, `rgba(15,17,21,.78)` 배경 pill |
-| 모션 감소 | OS 수준 "동작 줄이기" 설정 시 대시 흐름·펄스·팬 트랜지션을 정지한다 |
+| 같은 세그먼트의 다른 구간 | stroke `lineNormalNormal`, `unit × 9` |
+| 현재 구간 외곽선 | stroke `background`(흰색), `unit × 11` |
+| 현재 구간 본선 | stroke `primary`, `unit × 6`, dasharray `14 11`, 1.1s 무한 흐름 |
+| 구간 시작점 | r `unit × 5`, 흰 채움 + `primary` 테두리 |
+| 구간 끝점 | r `unit × 8`, `primary` 채움 + 흰 테두리 |
+| 층 배지 | 패널 좌상단, 흰 pill, 12/700 `labelNeutral` |
+| 모션 감소 | OS "동작 줄이기" 설정 시 대시 흐름을 정지한다 |
 
 ## 접근성 · 예외 처리
 - 본문 대비 4.5:1 이상 유지. 보조 텍스트를 스펙에 적힌 값보다 더 연하게 낮추지 않는다.
-- 스크린리더: 각 화면 전환/스텝 전환 시 새 지시문을 안내한다(RN에서는 `AccessibilityInfo.announceForAccessibility`).
-- 지도 로드 실패 시 회색 placeholder + 텍스트 지시문만으로 안내가 성립해야 한다.
+- 스크린리더: 현재 항목이 바뀔 때마다 새 지시문을 안내한다(RN에서는 `AccessibilityInfo.announceForAccessibility`).
+- 지도는 보조 수단이다 — 배경 이미지가 없는 현재 상태에서도 지시문과 도착 지점 설명만으로 안내가 성립해야 한다.
 - API 오류(경로 없음 / 잘못된 placeId / 서버 오류)는 원인별로 구분된 메시지와 재시도 버튼을 제공한다.
 
 ## 에러·엣지 상태
 전체 시나리오 목록은 `docs/PRD.md` "에러·엣지 케이스 요구사항", 데이터 계층 규칙은 `docs/ARCHITECTURE.md` "에러 모델"·"방어적 가드" 참조. 여기서는 그 상태들의 **비주얼**만 규정한다.
 
 ### ErrorState (전체 화면 대체형 — Loading 화면 전용)
-콘텐츠 영역 중앙에 세로 정렬. 카드나 보더 없이 배경과 톤을 맞춘다(라이트 배경 기준 — 턴바이턴 다크 화면에는 아직 진입하지 않은 시점이라 발생하지 않는다).
+콘텐츠 영역 중앙에 세로 정렬. 카드나 보더 없이 배경과 톤을 맞춘다(모든 화면이 라이트 배경이다).
 
 | kind | 아이콘/톤 | 제목 | 버튼 |
 |---|---|---|---|
@@ -157,11 +147,10 @@ function camera(points: [number, number][]) {
 - 제목: 16/600, `labelStrong`, 최대 2줄, 중앙 정렬.
 - 버튼 폭은 콘텐츠에 맞추고(화면 전체 폭 아님, `maxWidth: 280`) 중앙 정렬. `Retry`는 `PrimaryButton` 재사용, "Choose a different destination"은 `SecondaryButton`(도착 화면의 "Report a wrong turn"과 동일 컴포넌트) 재사용.
 
-### MapPane 플레이스홀더 (좌표 미스 / 이미지 로드 실패 공용)
-- 지도 패널과 동일한 크기(358×360)와 radius(20)를 유지해 레이아웃 점프가 없게 한다.
-- 배경 `#171A20`(턴바이턴 다크 배경과 동일 톤), 중앙에 지도 아이콘 글리프(28px, `rgba(255,255,255,.35)`) + 그 아래 13/500 `rgba(255,255,255,.55)`로 "Map unavailable for this step".
-- 층 배지(B1/B2 등)는 평소처럼 좌상단에 계속 표시한다 — 지도 이미지만 대체되고 층 정보는 유지.
-- 이 상태에서도 `GuidanceHeader`/`LandmarkCallout`은 평소와 동일하게 렌더링된다(텍스트만으로 안내 성립 원칙).
+### 지도 배경이 없는 현재 상태
+- 역 안내도 이미지가 저장소에 들어오기 전까지, 지도 패널은 배경 없이 경로 형태만 그린다. 별도의 "unavailable" 문구는 두지 않는다 — 경로 다이어그램 자체는 진짜 좌표라 유효한 정보다.
+- 다만 이것을 역 안내도처럼 보이게 꾸미지 않는다. 배경은 중립 `fillAlternative`로 두고, 지도처럼 읽히는 장식(건물 윤곽, 가짜 통로)을 그리지 않는다.
+- 이미지가 확보되면 같은 정규화 좌표계 위에 배경으로 깔면 된다(`docs/ADR.md` ADR-014).
 
 ### "안내 이탈" 확인 다이얼로그
 - 네이티브 `Alert`(플랫폼 기본 다이얼로그)를 사용한다 — 커스텀 모달을 새로 만들지 않는다.
@@ -176,7 +165,7 @@ Origin/Destination input은 네트워크 요청이 없어 로딩 상태 자체�
 
 | 폭 | 대표 기기 | 특히 확인할 것 |
 |---|---|---|
-| 375px | iPhone SE / 최소 지원 폭 | 긴 지시문·랜드마크 설명이 있어도 Next/Prev 버튼이 가려지지 않는다 |
+| 375px | iPhone SE / 최소 지원 폭 | 긴 지시문·도착 지점 설명이 있어도 현재 항목의 완료 버튼이 가려지지 않는다 |
 | 390px | 기준 목업 (iPhone 14) | 1:1 비교 기준 |
 | 428px | iPhone Pro Max급 | 지도 패널(고정 358px)이 좌우 여백과 함께 자연스럽게 중앙 정렬된다 |
 
@@ -186,11 +175,10 @@ Origin/Destination input은 네트워크 요청이 없어 로딩 상태 자체�
 | `TextField` | `label, value, onChangeText, placeholder?, keyboardType?, autoFocus?` | 01/02 화면 입력창, "공용 입력 컴포넌트" 절 참조 |
 | `ScreenTopBar` | `title, onBack?` | 02 화면 상단바(뒤로가기 + 제목) |
 | `ProfileSwitcher` | `value, onChange` | 02 화면 Standard / With luggage 세그먼트 |
-| `ProgressTrack` | `current, total` | 04 화면 상단 진행 바 |
-| `MapPane` | `points: (Point \| null)[], floorLabel` | 위 "MapPane" 절 참조. `null`이 섞이면 placeholder로 전환 |
-| `GuidanceHeader` | `step, stepNumber, totalSteps` | 04 화면 지시 블록 |
-| `LandmarkCallout` | `landmark` | 04 화면 랜드마크 카드 |
-| `NavButton` | `variant: 'prev' \| 'next' \| 'finish', disabled` | 04 화면 하단 버튼, 마지막 스텝에서 finish로 전환 |
+| `MapPane` | `geometry, segmentGeometry, mapAspect, floorLabel, height?` | 위 "MapPane" 절 참조 |
+| `MovementIcon` | `movementType, size?, color?` | 이동수단 아이콘 6종 (v1.2에 회전 방향이 없어 화살표를 대체) |
+| `GuideStepCard` | `step, index, isLast, onDone` | 04 화면의 현재 항목 카드 |
+| `GuideStepRow` | `step, index, state: 'done' \| 'upcoming'` | 04 화면의 접힌 항목 |
 | `ArrivalSummaryList` | `walkedMeters, durationSeconds, nextTrainMinutes` | 05 화면 요약 리스트 |
 | `ErrorState` | `kind: RouteServiceErrorKind, destination?, onRetry?, onChooseDifferent?` | 03 · Loading 화면 전용, "에러·엣지 상태" 절 표 참조 |
 | `PrimaryButton` / `SecondaryButton` | `label, onPress, disabled?` | 전 화면 공용 CTA / 아웃라인 버튼 |
