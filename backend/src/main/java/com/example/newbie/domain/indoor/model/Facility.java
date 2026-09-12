@@ -1,7 +1,5 @@
 package com.example.newbie.domain.indoor.model;
 
-import java.util.Objects;
-
 public record Facility(
         String id,
         FacilityType type,
@@ -11,9 +9,9 @@ public record Facility(
         FacilityStatus status
 ) {
     public Facility {
-        Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(type, "type must not be null");
-        Objects.requireNonNull(internalName, "internalName must not be null");
-        Objects.requireNonNull(status, "status must not be null");
+        id = GraphDataAssertions.requireText(id, "facility.id");
+        type = GraphDataAssertions.requireValue(type, "facility.type");
+        internalName = GraphDataAssertions.requireText(internalName, "facility.internalName");
+        status = GraphDataAssertions.requireValue(status, "facility.status");
     }
 }

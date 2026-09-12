@@ -1,7 +1,6 @@
 package com.example.newbie.domain.indoor.model;
 
 import java.util.List;
-import java.util.Objects;
 
 public record GraphNode(
         String id,
@@ -14,10 +13,10 @@ public record GraphNode(
         String facilityId
 ) {
     public GraphNode {
-        Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(nodeType, "nodeType must not be null");
-        Objects.requireNonNull(floor, "floor must not be null");
-        Objects.requireNonNull(description, "description must not be null");
+        id = GraphDataAssertions.requireText(id, "node.id");
+        nodeType = GraphDataAssertions.requireValue(nodeType, "node.nodeType");
+        floor = GraphDataAssertions.requireText(floor, "node.floor");
+        description = GraphDataAssertions.requireText(description, "node.description");
         landmarks = landmarks == null ? List.of() : List.copyOf(landmarks);
     }
 }

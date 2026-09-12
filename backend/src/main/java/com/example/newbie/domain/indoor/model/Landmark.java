@@ -1,7 +1,6 @@
 package com.example.newbie.domain.indoor.model;
 
 import java.util.List;
-import java.util.Objects;
 
 public record Landmark(
         String id,
@@ -12,11 +11,11 @@ public record Landmark(
         List<String> aliases
 ) {
     public Landmark {
-        Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(type, "type must not be null");
-        Objects.requireNonNull(name, "name must not be null");
-        Objects.requireNonNull(description, "description must not be null");
-        Objects.requireNonNull(position, "position must not be null");
+        id = GraphDataAssertions.requireText(id, "landmark.id");
+        type = GraphDataAssertions.requireValue(type, "landmark.type");
+        name = GraphDataAssertions.requireText(name, "landmark.name");
+        description = GraphDataAssertions.requireText(description, "landmark.description");
+        position = GraphDataAssertions.requireValue(position, "landmark.position");
         aliases = aliases == null ? List.of() : List.copyOf(aliases);
     }
 }

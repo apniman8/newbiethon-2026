@@ -1,6 +1,6 @@
 package com.example.newbie.domain.indoor.model;
 
-import java.util.Objects;
+import com.example.newbie.domain.indoor.exception.GraphDataInvalidException;
 
 public record SelectablePlace(
         String id,
@@ -13,10 +13,17 @@ public record SelectablePlace(
         int sortOrder
 ) {
     public SelectablePlace {
-        Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(displayName, "displayName must not be null");
-        Objects.requireNonNull(description, "description must not be null");
-        Objects.requireNonNull(nodeId, "nodeId must not be null");
-        Objects.requireNonNull(placeType, "placeType must not be null");
+        id = GraphDataAssertions.requireText(id, "place.id");
+        displayName = GraphDataAssertions.requireText(displayName, "place.displayName");
+        description = GraphDataAssertions.requireText(description, "place.description");
+        nodeId = GraphDataAssertions.requireText(nodeId, "place.nodeId");
+        placeType = GraphDataAssertions.requireValue(placeType, "place.placeType");
+        sortOrder = GraphDataAssertions.requireNonNegative(sortOrder, "place.sortOrder");
+
+        if (!selectableAsStart && !selectableAsDestination) {
+            throw new GraphDataInvalidException(
+                    "Place '%s' must be selectable as a start or destination.".formatted(id)
+            );
+        }
     }
 }
