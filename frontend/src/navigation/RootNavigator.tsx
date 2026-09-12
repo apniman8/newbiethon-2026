@@ -11,8 +11,8 @@ import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Flow: origin (free text + exit number) -> destination (free text) ->
-// loading (resolves + fetches the route) -> guide checklist -> arrived.
+// Flow: origin place selection -> destination place selection ->
+// loading (fetches the live route) -> guide checklist -> arrived.
 // docs/PRD.md "핵심 기능" / docs/ARCHITECTURE.md 디렉토리 구조.
 export function RootNavigator() {
   return (

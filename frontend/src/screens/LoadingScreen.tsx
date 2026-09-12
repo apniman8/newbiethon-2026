@@ -3,25 +3,19 @@ import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-n
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { ErrorState } from '../components/ErrorState';
-import { FIXED_START_PLACE_ID, MAP_ID } from '../data/constants';
+import { MAP_ID } from '../data/constants';
 import { RouteServiceError, type RouteServiceErrorKind } from '../data/errors';
-import { getPlaces, getRoute } from '../data/routeService';
+import { getRoute } from '../data/routeService';
 import { useSlowLoadHint } from '../hooks/useSlowLoadHint';
-import { colors, spacing } from '../theme/tokens';
-import { resolveDestination } from '../utils/matchPlace';
 import type { RootStackParamList } from '../navigation/types';
+import { colors, spacing } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Loading'>;
 
-// Connects the freely-typed origin/destination to an actual route
-// (docs/PRD.md "출발지·도착지 자유 입력"). A destination that doesn't match
-// any known place is a NOT_FOUND, handled with the same ErrorState as any
-// other route lookup failure (docs/ADR.md ADR-007).
 export function LoadingScreen({ route: navRoute, navigation }: Props) {
-  const { originQuery, originExitNumber, destinationQuery, profile } = navRoute.params;
+  const { originPlaceId, originDisplayName, destinationPlaceId, destinationDisplayName, profile } = navRoute.params;
   const [errorKind, setErrorKind] = useState<RouteServiceErrorKind | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
-
   const loading = errorKind === null;
   const slowLoad = useSlowLoadHint(loading);
 
@@ -29,38 +23,22 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
     let cancelled = false;
     setErrorKind(null);
 
-    (async () => {
-      try {
-        const places = await getPlaces(MAP_ID);
-        const destination = resolveDestination(places.places, destinationQuery);
-        if (!destination) {
-          throw new RouteServiceError('NOT_FOUND', `No place matches "${destinationQuery}"`);
+    getRoute({ mapId: MAP_ID, startPlaceId: originPlaceId, destinationPlaceId, profile })
+      .then((routeResponse) => {
+        if (!cancelled) {
+          navigation.replace('Guide', { route: routeResponse, originLabel: originDisplayName });
         }
-
-        const routeResponse = await getRoute({
-          mapId: MAP_ID,
-          startPlaceId: FIXED_START_PLACE_ID,
-          destinationPlaceId: destination.id,
-          profile,
-        });
-
-        if (cancelled) return;
-
-        const originLabel = originExitNumber
-          ? `${originQuery} · Exit ${originExitNumber}`
-          : originQuery;
-
-        navigation.replace('Guide', { route: routeResponse, originLabel });
-      } catch (e) {
-        if (cancelled) return;
-        setErrorKind(e instanceof RouteServiceError ? e.kind : 'SERVER_ERROR');
-      }
-    })();
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setErrorKind(error instanceof RouteServiceError ? error.kind : 'SERVER_ERROR');
+        }
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [originQuery, originExitNumber, destinationQuery, profile, navigation, reloadToken]);
+  }, [originPlaceId, originDisplayName, destinationPlaceId, profile, navigation, reloadToken]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -68,18 +46,16 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
         <View style={styles.loadingBox}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.title}>Finding your way</Text>
-          <Text style={styles.subtitle}>
-            {originQuery} → {destinationQuery}
-          </Text>
+          <Text style={styles.subtitle}>{originDisplayName} → {destinationDisplayName}</Text>
           {slowLoad && <Text style={styles.slowHint}>Still looking for a route…</Text>}
         </View>
       ) : (
         <ErrorState
           kind={errorKind}
-          destination={destinationQuery}
+          destination={destinationDisplayName}
           onRetry={
             errorKind === 'NETWORK' || errorKind === 'SERVER_ERROR'
-              ? () => setReloadToken((t) => t + 1)
+              ? () => setReloadToken((token) => token + 1)
               : undefined
           }
           onChooseDifferent={
@@ -94,10 +70,7 @@ export function LoadingScreen({ route: navRoute, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
+  safeArea: { flex: 1, backgroundColor: colors.background },
   loadingBox: {
     flex: 1,
     alignItems: 'center',
@@ -105,21 +78,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingHorizontal: spacing.xxxl,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.labelStrong,
-    marginTop: spacing.sm,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.labelNeutral,
-    textAlign: 'center',
-  },
-  slowHint: {
-    fontSize: 13,
-    color: colors.labelAlternative,
-    marginTop: spacing.sm,
-  },
+  title: { fontSize: 18, fontWeight: '700', color: colors.labelStrong, marginTop: spacing.sm },
+  subtitle: { fontSize: 14, fontWeight: '500', color: colors.labelNeutral, textAlign: 'center' },
+  slowHint: { fontSize: 13, color: colors.labelAlternative, marginTop: spacing.sm },
 });

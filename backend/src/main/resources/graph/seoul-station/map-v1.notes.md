@@ -7,10 +7,26 @@ IMG-DIRECT / IMG-CALC / ASSUMPTION / ASSIGNED / UNVERIFIED tagging agreed on ear
 ## Scope
 
 `SEOUL_KTX_OVERVIEW` (the KTX / Line 1 / Line 4 concourse diagram with the
-80m / 75m calibration lines) and `SEOUL_AREX_EXPLODED` are modeled. Exit 15 is
-represented once on each image and connected by an edge with empty geometry,
-which the API converts into a map-transition segment. The AREX coordinates,
-distances, and floor connection remain mock data until field verification.
+80m / 75m calibration lines) and `SEOUL_AREX_EXPLODED` are modeled. Both map
+images are now the real, uncropped station diagrams (bundled in
+`frontend/src/assets/`) — an earlier cropped placeholder for
+`seoul-ktx-overview.png` caused node positions to drift from the actual
+artwork; that has been replaced.
+
+Two map-transition points now exist:
+- Exit 15 (`SEOUL-1F-N110` ↔ `SEOUL-AREX-N001`) — the original KTX-arrival ↔
+  AREX-platform path.
+- A second, direct transfer (`SEOUL-AREX-N007` ↔ `SEOUL-B1-N060`) added from
+  the AREX diagram's own "Transfer to Line 1, Line 4" arrow: AREX platform →
+  stairs (`SEOUL-AREX-N005`) → B3 all-stop ticket concourse
+  (`SEOUL-AREX-N006`) → B2 express ticket concourse (`SEOUL-AREX-N007`) →
+  straight into the existing B1 concourse junction. This is shorter than
+  going back out through Exit 15, so STANDARD now prefers it for AREX↔Line1/4
+  requests; LUGGAGE still can't use it (STAIR) and keeps the Exit-15 +
+  elevator route.
+
+The AREX coordinates, distances, and floor connections remain mock data
+until field verification.
 
 ## Per-field basis
 
@@ -30,14 +46,21 @@ distances, and floor connection remain mock data until field verification.
 
 ## Open question before this is trustworthy for the demo
 
-**No STAIR node/edge exists in this graph.** Every path from the 1F hub
-(`SEOUL-1F-N030`) down to B1 goes through either the elevator
-(`SEOUL-ELEVATOR-MAIN`) or the escalator (`SEOUL-ESCALATOR-MAIN`) — both of
-which are allowed for both STANDARD and LUGGAGE under the current cost policy.
-That means **STANDARD and LUGGAGE will currently compute the same route**,
-which defeats the one visual differentiator the demo relies on.
+**The KTX-side hub (`SEOUL-1F-N030`) still has no STAIR edge** — every path
+from there down to B1 goes through the elevator or escalator, both allowed
+for STANDARD and LUGGAGE alike, so a plain `KTX arrival → Line 1/4` request
+still returns the same route for both profiles. This was deliberately
+deprioritized in favor of the AREX direct-transfer path above.
 
-This wasn't in the reviewed node table, so no stair node was added here. If a
-staircase actually exists next to the main escalator (very likely in a real
-station, but not confirmed from this image), add it and it should be blocked
-for LUGGAGE only.
+The AREX-side stair (`SEOUL-AREX-N005` → `SEOUL-AREX-N006`, `SEOUL-E021`) *is*
+new and *does* make STANDARD and LUGGAGE diverge — but only for routes that
+touch the AREX platform (e.g. `AREX Platform → Line 1/4 Platform`). If the
+demo script only walks through `KTX arrival → Line 1/4`, it still won't show
+a profile difference; use an AREX-involving pair instead, or add the KTX-side
+stair later.
+
+**The B7→B6→B3→B2 stair segment's distance/duration are rough guesses**
+(demoData) built from the diagram's relative floor spacing, not a real
+measurement — five underground levels is a lot to cross, so this number is
+one of the least trustworthy in the file. Field-verify before treating
+"88m / 106s" as real.

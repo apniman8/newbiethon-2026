@@ -10,16 +10,15 @@ frontend/
 ├── app.json                # Expo 앱 설정
 └── src/
     ├── screens/             # OriginInput, DestinationInput, Loading, Guide, Arrived
-    ├── components/          # 화면에서 재사용하는 UI 조각 (TextField, MapPane, GuideStepCard 등)
+    ├── components/          # 화면에서 재사용하는 UI 조각 (PlaceSelector, MapPane, GuideStepCard 등)
     ├── navigation/           # React Navigation 스택 정의, 라우트 파라미터 타입
     ├── theme/                # tokens.ts — 색상·타이포·간격·radius 상수 (fig-tokens.css 기반)
     ├── data/                 # 데이터 계층
     │   ├── fixtures/          # contracts/v1.2 고정 JSON의 로컬 사본 (목데이터)
     │   ├── errors.ts          # RouteServiceError — 타입화된 에러 (아래 "에러 모델" 참조)
-    │   ├── constants.ts       # MAP_ID, FIXED_START_PLACE_ID
-    │   └── routeService.ts   # places/route 조회 함수 — fixture 또는 실제 API를 동일 인터페이스로 반환
+    │   ├── constants.ts       # 현재 지원하는 MAP_ID
+    │   └── routeService.ts   # 실제 백엔드 places/route API 호출 경계
     ├── utils/
-    │   ├── matchPlace.ts      # 자유 입력된 도착지 텍스트를 알려진 장소와 매칭 (아래 "목적지 매칭" 참조)
     │   └── routeSteps.ts      # v1.2 세그먼트를 체크리스트 항목 목록으로 펼침 (ADR-015)
     ├── types/                # contracts/v1.2 스키마를 그대로 반영한 TS 타입
     └── hooks/                # 화면 간 공유되는 로직 (모션 감소, 느린 로딩 힌트)
@@ -27,35 +26,34 @@ frontend/
 
 ## 화면 흐름
 ```
-OriginInput        (출발지 텍스트 + 출구 번호 입력)
-  → DestinationInput (도착지 텍스트 입력 + 프로필 선택, 출발지 요약 표시)
-    → Loading         (도착지 매칭 + 경로 조회)
+OriginInput        (GET places 결과에서 출발지 선택)
+  → DestinationInput (GET places 결과에서 도착지 + 프로필 선택)
+    → Loading         (선택한 placeId로 경로 조회)
       → Guide           (경로 전체 체크리스트) ─┬─ 항목 0개 → Arrived로 즉시 대체
                                                 └─ 마지막 항목 체크 → Arrived
         → Arrived         ("Plan another transfer" → OriginInput으로 스택 리셋)
 ```
-`OriginInput`과 `DestinationInput`은 입력값 검증(비어있지 않은지)만 하고 네트워크 요청을 하지 않는다 — 실제 데이터 조회와 실패 처리는 전부 `Loading` 화면에 모여 있다.
+`OriginInput`과 `DestinationInput`은 `usePlaces`를 통해 실제 백엔드 장소 목록을 조회한다. 각각 `selectableAsStart`, `selectableAsDestination`으로 선택지를 제한하고 같은 장소는 도착지 목록에서 제외한다.
 
 ## 데이터 흐름
 ```
-LoadingScreen 마운트
+OriginInput / DestinationInput 마운트
+  → usePlaces(mapId)
   → routeService.getPlaces(mapId)                         → PlacesResponse
-  → utils/matchPlace.resolveDestination(places, query)     → Place | null
-      null이면 RouteServiceError('NOT_FOUND')를 던지고 종료
-  → routeService.getRoute({ mapId, startPlaceId: FIXED_START_PLACE_ID, destinationPlaceId, profile })
+  → 사용자가 출발지·도착지 Place 선택
+LoadingScreen 마운트
+  → routeService.getRoute({ mapId, startPlaceId, destinationPlaceId, profile })
                                                             → RouteResponse
   → navigation.replace('Guide', { route, originLabel })
 ```
-`routeService`는 fixture와 실제 API를 같은 함수 시그니처(`Promise<PlacesResponse>`, `Promise<RouteResponse>`)로 감싸므로, 화면 컴포넌트는 데이터 출처를 알 필요가 없다. 전환은 `routeService.ts` 내부 구현만 바꾸면 된다.
+`routeService`는 `EXPO_PUBLIC_API_BASE_URL`(기본값 `http://localhost:8080`)의 실제 API만 호출한다. 장소 조회와 경로 조회는 모두 `RouteServiceError`로 실패 종류를 정규화한다.
 
-## 목적지 매칭
-`OriginInput`/`DestinationInput`은 목록이 아니라 자유 텍스트를 받으므로(`docs/PRD.md` "출발지·도착지 입력 방식"), 실제 `placeId`로 바꿔주는 단계가 필요하다. `src/utils/matchPlace.ts`의 `resolveDestination(places, query)`가 이 역할을 한다: `selectableAsDestination`인 장소 중 `displayName` → `description` 순으로 대소문자 무시 부분 문자열 일치를 찾는다. 매치가 없으면 `null`을 반환하고, `LoadingScreen`은 이를 `RouteServiceError('NOT_FOUND')`로 변환해 기존 에러 UX(`ErrorState`)를 그대로 재사용한다.
-
-출발지는 매칭하지 않는다 — Phase 0 백엔드가 지원하는 시작 지점은 `FIXED_START_PLACE_ID` 하나뿐이라(`docs/ADR.md` ADR-013), 사용자가 입력한 출발지 텍스트(+ 출구 번호)는 `originLabel` 문자열로만 조합해 화면에 표시한다.
+## 장소 선택
+`PlaceSelector`는 백엔드가 반환한 안정적인 `placeId`를 radio-card UI로 선택한다. 텍스트 매칭 단계가 없으므로 한글·오타·중복 부분 문자열 문제를 만들지 않으며, 표시 이름과 ID를 navigation params로 다음 화면에 전달한다. API 조회 중에는 로딩 상태를, 실패하면 재시도 UI를 표시한다.
 
 ## 네비게이션 / 상태 관리
 - 5개 화면은 선형 플로우이므로 `@react-navigation/native-stack` 하나로 충분하다. 전역 상태 라이브러리(Redux 등)는 도입하지 않는다.
-- 화면 간 전달값(`originQuery`, `originExitNumber`, `destinationQuery`, `profile`, 조회된 `RouteResponse`, 조합된 `originLabel`)은 React Navigation의 route params로 다음 화면에 넘긴다. 타입은 `src/navigation/types.ts`의 `RootStackParamList`.
+- 화면 간 전달값(`originPlaceId`, `originDisplayName`, `destinationPlaceId`, `destinationDisplayName`, `profile`, 조회된 `RouteResponse`)은 React Navigation의 route params로 다음 화면에 넘긴다. 타입은 `src/navigation/types.ts`의 `RootStackParamList`.
 - 각 화면 내부의 순수 UI 상태(입력 텍스트, 포커스, 토글 등)는 `useState`로 충분하다.
 - 안내 화면은 `doneCount`(체크한 항목 수) 하나만 상태로 들고, 현재 항목·남은 거리·진행률은 전부 거기서 파생시킨다.
 
@@ -86,7 +84,6 @@ export class RouteServiceError extends Error {
 
 - `fetch` 자체가 실패(오프라인, 타임아웃, DNS 등 `TypeError`)하면 `NETWORK`.
 - HTTP `404`는 `NOT_FOUND`, `400`/`422`는 `INVALID_REQUEST`, `5xx`는 `SERVER_ERROR`로 매핑한다.
-- 도착지 텍스트가 알려진 장소와 매칭되지 않는 경우(`matchPlace.resolveDestination`이 `null`)도 `LoadingScreen`이 직접 `RouteServiceError('NOT_FOUND')`를 던져 같은 경로로 처리한다 — 매칭 실패와 백엔드의 "경로 없음"을 사용자 입장에서 구분할 이유가 없다.
 - 화면은 항상 `catch (e) { if (e instanceof RouteServiceError) ... }`로 `kind`를 분기해 `ErrorState` 컴포넌트에 넘긴다. `kind`별 문구는 화면 로직이 아니라 `ErrorState` 내부의 매핑 테이블 하나로 관리한다(중복 방지).
 
 ## 화면 상태 머신

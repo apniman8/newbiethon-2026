@@ -2,11 +2,12 @@ import type { RoutingProfile, RouteResponse } from '../types/contracts';
 
 export type RootStackParamList = {
   OriginInput: undefined;
-  DestinationInput: { originQuery: string; originExitNumber: string };
+  DestinationInput: { originPlaceId: string; originDisplayName: string };
   Loading: {
-    originQuery: string;
-    originExitNumber: string;
-    destinationQuery: string;
+    originPlaceId: string;
+    originDisplayName: string;
+    destinationPlaceId: string;
+    destinationDisplayName: string;
     profile: RoutingProfile;
   };
   Guide: { route: RouteResponse; originLabel: string };

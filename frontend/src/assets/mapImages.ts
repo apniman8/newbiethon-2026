@@ -16,10 +16,14 @@ export interface MapAsset {
 const ASSETS: Record<string, MapAsset> = {
   'seoul-ktx-overview': {
     source: require('./seoul-ktx-overview.png'),
-    width: 2646,
-    height: 1340,
+    width: 2657,
+    height: 1786,
   },
-  // 'seoul-arex-exploded' — not supplied yet.
+  'seoul-arex-exploded': {
+    source: require('./seoul-arex-exploded.png'),
+    width: 2657,
+    height: 1786,
+  },
 };
 
 export function getMapAsset(assetKey: string | undefined): MapAsset | null {

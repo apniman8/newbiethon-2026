@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Image as SvgImage, Path } from 'react-native-svg';
 
 import { colors, radius } from '../theme/tokens';
@@ -67,7 +67,9 @@ export function MapPane({
   const dashOffset = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (reducedMotion) return;
+    // react-native-svg's animated Path emits a runtime error on React Native Web.
+    // Keep the route visible there as a static dashed line; native keeps the motion.
+    if (reducedMotion || Platform.OS === 'web') return;
     const loop = Animated.loop(
       Animated.timing(dashOffset, {
         toValue: -0.28,
@@ -120,16 +122,28 @@ export function MapPane({
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <AnimatedPath
-            d={toPath(geometry, mapAspect)}
-            fill="none"
-            stroke={colors.primary}
-            strokeWidth={unit * 6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={`${unit * 14} ${unit * 11}`}
-            strokeDashoffset={dashOffset}
-          />
+          {Platform.OS === 'web' ? (
+            <Path
+              d={toPath(geometry, mapAspect)}
+              fill="none"
+              stroke={colors.primary}
+              strokeWidth={unit * 6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={`${unit * 14} ${unit * 11}`}
+            />
+          ) : (
+            <AnimatedPath
+              d={toPath(geometry, mapAspect)}
+              fill="none"
+              stroke={colors.primary}
+              strokeWidth={unit * 6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={`${unit * 14} ${unit * 11}`}
+              strokeDashoffset={dashOffset}
+            />
+          )}
           {start && (
             <Circle
               cx={start.x * mapAspect}
