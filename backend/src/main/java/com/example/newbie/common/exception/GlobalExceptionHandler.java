@@ -2,7 +2,6 @@ package com.example.newbie.common.exception;
 
 import com.example.newbie.domain.indoor.model.RoutingProfile;
 import com.example.newbie.domain.indoor.exception.GraphDataInvalidException;
-import com.example.newbie.domain.indoor.exception.RouteNotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -27,11 +26,6 @@ public class GlobalExceptionHandler {
     ) {
         log.error("Invalid station graph data: {}", exception.getMessage(), exception);
         return response(ErrorCode.GRAPH_DATA_INVALID);
-    }
-
-    @ExceptionHandler(RouteNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRouteNotFound(RouteNotFoundException exception) {
-        return response(ErrorCode.ROUTE_NOT_FOUND);
     }
 
     @ExceptionHandler(BusinessException.class)
