@@ -1,0 +1,100 @@
+{
+  "pages": [
+    { "id": "guidance", "name": "Guidance screen" },
+    { "id": "entry", "name": "Entry flow" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "A · Signage", "page": "guidance" },
+    { "file": "Glance.dc.html", "x": 500, "y": 0, "w": 390, "h": 844, "title": "B · Glance", "page": "guidance" },
+    { "file": "MapFirst.dc.html", "x": 1000, "y": 0, "w": 390, "h": 844, "title": "C · Map first", "page": "guidance" },
+    { "file": "Editorial.dc.html", "x": 1500, "y": 0, "w": 390, "h": 844, "title": "D · Calm", "page": "guidance" },
+    { "file": "Checklist.dc.html", "x": 2000, "y": 0, "w": 390, "h": 844, "title": "E · Checklist", "page": "guidance" },
+
+    { "file": "EntryTyped.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "F · Typed (built)", "page": "entry" },
+    { "file": "EntryOneScreen.dc.html", "x": 500, "y": 0, "w": 390, "h": 844, "title": "G · One screen", "page": "entry" },
+    { "file": "EntryTiles.dc.html", "x": 1000, "y": 0, "w": 390, "h": 844, "title": "H · No typing", "page": "entry" }
+  ],
+  "annotations": [
+    {
+      "id": "page-note",
+      "x": 0,
+      "y": -330,
+      "w": 890,
+      "page": "guidance",
+      "text": "다섯 안 모두 같은 스텝 하나입니다 — 2/3, 좌회전 18m, Elevator A.\n내용을 고정했으니 차이나는 건 디자인뿐입니다. 지도는 실제 역이용안내도 대신 추상 도면으로 대체했습니다."
+    },
+    {
+      "id": "sig-note",
+      "x": 0,
+      "y": -190,
+      "w": 390,
+      "page": "guidance",
+      "text": "A · Signage\n역 안 표지판의 언어를 그대로 씁니다. 사용자는 이미 머리 위 남색 사인을 보며 걷고 있으니, 화면이 그 연장선이 되는 쪽.\n선 색(AREX 하늘색, 1호선 남색)은 정보로, 브랜드 블루는 경로·조작에만.\n트레이드오프: 앱 고유 브랜드색이 뒤로 밀리고, 지도 자리가 가장 좁습니다."
+    },
+    {
+      "id": "glance-note",
+      "x": 500,
+      "y": -190,
+      "w": 390,
+      "page": "guidance",
+      "text": "B · Glance\n걷는 속도 기준. 화살표와 숫자 하나만 경쟁 없이 크게. 차량 내비게이션 논리.\n트레이드오프: 한국어 표지판을 못 읽는 사람에게 안심을 주는 랜드마크 설명이 빠집니다. 길을 잃은 순간 가장 필요한 정보가 없는 화면."
+    },
+    {
+      "id": "mapfirst-note",
+      "x": 1000,
+      "y": -190,
+      "w": 390,
+      "page": "guidance",
+      "text": "C · Map first\n지도가 곧 제품이라는 입장. 아무도 안 만든 실내 지도가 이 앱의 존재 이유니까 화면을 꽉 채우고 지시문은 카드로 띄웁니다.\n트레이드오프: 실제로는 스캔된 역이용안내도라 폰 크기에서 읽힐지 아직 검증 못 했습니다. 여기에 가장 크게 베팅하는 안."
+    },
+    {
+      "id": "editorial-note",
+      "x": 1500,
+      "y": -190,
+      "w": 390,
+      "page": "guidance",
+      "text": "D · Calm\n기계가 아니라 여행 동반자. 여백과 세리프, 낮은 채도.\n트레이드오프: 다섯 중 글랜스 성능이 가장 낮습니다. 열차 시간에 쫓기는 사람에게는 틀린 답. 스크린샷은 제일 예쁩니다."
+    },
+    {
+      "id": "checklist-note",
+      "x": 2000,
+      "y": -190,
+      "w": 390,
+      "page": "guidance",
+      "text": "E · Checklist\n메타포 자체가 다릅니다. 실내에는 측위가 없어서 앱은 사용자 위치를 모릅니다 — 그렇다면 실시간 안내인 척하지 말고 체크리스트로 정직하게.\n앞뒤 스텝을 항상 볼 수 있어 헷갈릴 때 강합니다.\n트레이드오프: 지배적인 요소가 없어 걸으며 읽기엔 가장 느립니다."
+    },
+    {
+      "id": "entry-page-note",
+      "x": 0,
+      "y": -270,
+      "w": 890,
+      "page": "entry",
+      "text": "입력 방식 3안. 지금 구현된 건 F입니다."
+    },
+    {
+      "id": "typed-note",
+      "x": 0,
+      "y": -190,
+      "w": 390,
+      "page": "entry",
+      "text": "F · Typed (현재 구현)\n자유 입력 + 타이핑 중 후보 제안. 익숙한 검색 패턴이고 목적지가 늘어나도 확장됩니다.\n트레이드오프: 결국 아는 장소 목록과 문자열을 맞춰야 합니다. 한글 표기나 오타 하나면 막다른 길."
+    },
+    {
+      "id": "onescreen-note",
+      "x": 500,
+      "y": -190,
+      "w": 390,
+      "page": "entry",
+      "text": "G · One screen\n출발·도착을 한 화면에. 교통 앱의 경로 검색 패턴이라 여행자에게 이미 익숙하고, 전체 여정이 한눈에 보입니다. 화면 하나가 줄어듭니다.\n트레이드오프: 출구 번호 입력을 어디에 둘지가 애매해집니다 — 접으면 안 보이고, 펼치면 폼이 길어집니다."
+    },
+    {
+      "id": "tiles-note",
+      "x": 1000,
+      "y": -190,
+      "w": 390,
+      "page": "entry",
+      "text": "H · No typing\n타이핑을 아예 없앱니다. 출구는 번호 칩, 목적지는 노선 색 타일. 매칭 실패가 구조적으로 불가능합니다.\n캐리어 끌고 장갑 낀 손으로도 눌립니다. 핵심 사용자(한국어도 영어 타이핑도 자신 없는 관광객)에게 가장 낮은 장벽.\n트레이드오프: 목적지가 적을 때만 성립합니다. 목록이 커지면 무너집니다."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "guidance" }
+}

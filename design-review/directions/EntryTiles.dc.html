@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: #3366FF; }
+  a:hover { color: #2B54D6; }
+</style>
+</helmet>
+<div style="width:390px; height:844px; background:#FFFFFF; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; display:flex; flex-direction:column; overflow:hidden;">
+
+  <div style="padding:28px 24px 0; display:flex; flex-direction:column; gap:6px;">
+    <span style="font-size:13px; font-weight:600; color:#3366FF;">SEOUL STATION</span>
+    <h1 style="margin:0; font-size:28px; font-weight:700; line-height:35px; letter-spacing:-0.6px; color:#111418;">No typing needed</h1>
+  </div>
+
+  <div style="padding:24px 0 0; display:flex; flex-direction:column; gap:12px;">
+    <span style="padding:0 24px; font-size:13px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; color:#6B7280;">Which exit did you come in?</span>
+    <div style="display:flex; gap:10px; padding:0 24px; overflow:hidden;">
+      <span style="width:56px; height:56px; border-radius:14px; background:#3366FF; color:#FFFFFF; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
+      <span style="width:56px; height:56px; border-radius:14px; border:1px solid #E8EBF0; color:#4B5563; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
+      <span style="width:56px; height:56px; border-radius:14px; border:1px solid #E8EBF0; color:#4B5563; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
+      <span style="width:56px; height:56px; border-radius:14px; border:1px solid #E8EBF0; color:#4B5563; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</span>
+      <span style="width:56px; height:56px; border-radius:14px; border:1px solid #E8EBF0; color:#9AA1AC; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">5</span>
+    </div>
+    <span style="padding:0 24px; font-size:13px; color:#6B7280;">Exit numbers are printed on every gate and stair.</span>
+  </div>
+
+  <div style="padding:28px 24px 0; display:flex; flex-direction:column; gap:12px; flex:1;">
+    <span style="font-size:13px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; color:#6B7280;">Which train are you taking?</span>
+
+    <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px;">
+      <button style="display:flex; flex-direction:column; gap:10px; padding:0 0 14px; border-radius:14px; border:2px solid #0090D2; background:transparent; cursor:pointer; font-family:inherit; overflow:hidden; text-align:left;">
+        <span style="background:#0090D2; color:#FFFFFF; font-size:13px; font-weight:800; letter-spacing:0.6px; padding:10px 14px;">AREX</span>
+        <span style="padding:0 14px; font-size:16px; font-weight:700; color:#111418;">Airport</span>
+        <span style="padding:0 14px; font-size:13px; color:#6B7280;">B7 · Incheon Airport</span>
+      </button>
+
+      <button style="display:flex; flex-direction:column; gap:10px; padding:0 0 14px; border-radius:14px; border:1px solid #E8EBF0; background:transparent; cursor:pointer; font-family:inherit; overflow:hidden; text-align:left;">
+        <span style="background:#0052A4; color:#FFFFFF; font-size:13px; font-weight:800; letter-spacing:0.6px; padding:10px 14px;">LINE 1</span>
+        <span style="padding:0 14px; font-size:16px; font-weight:700; color:#111418;">Cheonan</span>
+        <span style="padding:0 14px; font-size:13px; color:#6B7280;">B2 · southbound</span>
+      </button>
+
+      <button style="display:flex; flex-direction:column; gap:10px; padding:0 0 14px; border-radius:14px; border:1px solid #E8EBF0; background:transparent; cursor:pointer; font-family:inherit; overflow:hidden; text-align:left;">
+        <span style="background:#00A5DE; color:#FFFFFF; font-size:13px; font-weight:800; letter-spacing:0.6px; padding:10px 14px;">LINE 4</span>
+        <span style="padding:0 14px; font-size:16px; font-weight:700; color:#111418;">Oido</span>
+        <span style="padding:0 14px; font-size:13px; color:#6B7280;">B3 · southbound</span>
+      </button>
+
+      <button style="display:flex; flex-direction:column; gap:10px; padding:0 0 14px; border-radius:14px; border:1px solid #E8EBF0; background:transparent; cursor:pointer; font-family:inherit; overflow:hidden; text-align:left;">
+        <span style="background:#4B5563; color:#FFFFFF; font-size:13px; font-weight:800; letter-spacing:0.6px; padding:10px 14px;">KTX</span>
+        <span style="padding:0 14px; font-size:16px; font-weight:700; color:#111418;">Busan</span>
+        <span style="padding:0 14px; font-size:13px; color:#6B7280;">2F · main concourse</span>
+      </button>
+    </div>
+  </div>
+
+  <div style="padding:16px 24px 32px;">
+    <button style="width:100%; height:56px; border:none; border-radius:14px; background:#3366FF; color:#FFFFFF; font-size:17px; font-weight:700; cursor:pointer; font-family:inherit;">Show me the way</button>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: #3366FF; }
+  a:hover { color: #2B54D6; }
+</style>
+</helmet>
+<div style="width:390px; height:844px; background:#12161D; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; position:relative; overflow:hidden;">
+
+  <svg width="390" height="844" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0;">
+    <rect x="0" y="0" width="390" height="844" fill="#12161D" />
+    <rect x="-40" y="470" width="400" height="46" fill="#1C222C" />
+    <rect x="250" y="120" width="46" height="380" fill="#1C222C" />
+    <rect x="60" y="150" width="150" height="120" fill="#1A1F28" />
+    <rect x="60" y="300" width="150" height="120" fill="#1A1F28" />
+    <rect x="300" y="560" width="120" height="150" fill="#1A1F28" />
+    <path d="M 40 493 L 273 493 L 273 240" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 40 493 L 273 493 L 273 240" fill="none" stroke="#3366FF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="18 14" />
+    <circle cx="273" cy="240" r="30" fill="#3366FF" opacity="0.22" />
+    <circle cx="273" cy="240" r="12" fill="#3366FF" stroke="#FFFFFF" stroke-width="5" />
+    <text x="130" y="215" fill="rgba(255,255,255,0.42)" font-size="13" font-weight="600" font-family="-apple-system, sans-serif">Information desk</text>
+    <text x="300" y="200" fill="rgba(255,255,255,0.42)" font-size="13" font-weight="600" font-family="-apple-system, sans-serif">Elevator A</text>
+  </svg>
+
+  <div style="position:absolute; top:16px; left:24px; right:24px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <button style="width:40px; height:40px; border-radius:20px; background:rgba(18,22,29,0.82); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+    </button>
+    <span style="background:rgba(18,22,29,0.82); color:#FFFFFF; font-size:13px; font-weight:700; padding:10px 14px; border-radius:999px;">1F · Step 2 of 3</span>
+  </div>
+
+  <div style="position:absolute; left:16px; right:16px; bottom:16px; background:#FFFFFF; border-radius:20px; padding:20px; display:flex; flex-direction:column; gap:16px;">
+    <span style="width:36px; height:4px; border-radius:2px; background:#E8EBF0; align-self:center;"></span>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <svg width="56" height="56" viewBox="0 0 64 64" style="flex-shrink:0;">
+        <path d="M 44 58 L 44 30 C 44 24 40 22 34 22 L 22 22" stroke="#3366FF" stroke-width="9" fill="none" />
+        <polygon points="24 8 24 36 6 22" fill="#3366FF" />
+      </svg>
+      <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+        <span style="font-size:34px; font-weight:700; letter-spacing:-1px; line-height:1; color:#111418;">18 m</span>
+        <span style="font-size:15px; font-weight:600; color:#6B7280;">to Elevator A</span>
+      </div>
+    </div>
+    <p style="margin:0; font-size:17px; font-weight:500; line-height:24px; color:#4B5563; text-wrap:pretty;">Turn left and walk 18 meters. The elevator is silver, next to the information desk.</p>
+    <div style="display:flex; gap:10px;">
+      <button style="width:56px; height:52px; border:1px solid #E8EBF0; border-radius:14px; background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+      </button>
+      <button style="flex:1; height:52px; border:none; border-radius:14px; background:#3366FF; color:#FFFFFF; font-size:17px; font-weight:700; cursor:pointer; font-family:inherit;">Next step</button>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
